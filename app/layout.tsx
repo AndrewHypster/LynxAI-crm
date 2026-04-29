@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -41,6 +42,7 @@ export default function RootLayout({
                   <div className="flex-1">
                     <h1 className="text-lg font-semibold">LynxAI CRM</h1>
                   </div>
+                  <ThemeToggle />
                 </header>
                 <div className="flex-1 overflow-auto p-6">{children}</div>
               </main>
