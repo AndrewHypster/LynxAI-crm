@@ -1,55 +1,108 @@
-import {
-  Users,
-  LayoutDashboard,
-  MessageSquare,
-  ShieldCheck,
-  Layers,
-} from "lucide-react"
+"use client"
 
+import { signOut, useSession } from "next-auth/react"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar"
-
-const menuItems = [
-  { title: "Дашборд", url: "/", icon: LayoutDashboard },
-  { title: "Клієнти", url: "/customers", icon: Users },
-  { title: "Ролі та Права", url: "/roles", icon: ShieldCheck },
-  { title: "Статуси", url: "/statuses", icon: Layers },
-  { title: "Розсилка", url: "/broadcast", icon: MessageSquare },
-]
+import { NAV_CONFIG } from "@/config/navigation"
+import Link from "next/link"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { LogOut, User } from "lucide-react"
 
 export function AppSidebar() {
+  const { data: session, status } = useSession()
+
+  // 1. Якщо сесія ще вантажиться, не показуємо дефолтне меню
+  if (status === "loading") {
+    return (
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+        </SidebarContent>
+      </Sidebar>
+    )
+  }
+
+  const userRole = session?.user?.role || "MANAGER" // Дефолтна роль для безпеки
+
   return (
-    <Sidebar variant="sidebar" collapsible="icon">
+    <Sidebar collapsible="icon">
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Меню</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {NAV_CONFIG.map((group) => {
+          // Фільтруємо пункти всередині групи
+          const allowedItems = group.items.filter((item) =>
+            item.roles.includes(userRole)
+          )
+
+          // Якщо в групі немає дозволених пунктів — не рендеримо її взагалі
+          if (allowedItems.length === 0) return null
+
+          return (
+            <SidebarGroup key={group.title}>
+              <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+              <SidebarMenu>
+                {allowedItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          )
+        })}
       </SidebarContent>
+
       <SidebarFooter>
-        <div className="p-4 text-xs text-muted-foreground">v1.0.0</div>
+        <SidebarMenu>
+          {session && <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <User className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {session?.user?.name || "Користувач"}
+                    </span>
+                    <span className="truncate text-xs">
+                      {session?.user?.role || "Role"}
+                    </span>
+                  </div>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                >
+                  <LogOut className="mr-2 size-4" />
+                  Вийти
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>}
+          
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

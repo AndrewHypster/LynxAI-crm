@@ -1,4 +1,3 @@
-import { STATUS_CONFIG } from "@/lib/constants"
 import {
   UserPlus,
   CheckCircle2,
@@ -8,6 +7,7 @@ import {
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { LEAD_STATUS_CONFIG } from "@/lib/constants"
 
 // Мапимо іконки до статусів
 const STATUS_ICONS: Record<string, LucideIcon> = {
@@ -56,7 +56,7 @@ export default function StatusesPage() {
         {statusesInfo.map((item) => {
           // Отримуємо глобальні налаштування кольорів для цього статусу
           const config =
-            STATUS_CONFIG[item.status as keyof typeof STATUS_CONFIG]
+            LEAD_STATUS_CONFIG[item.status as keyof typeof LEAD_STATUS_CONFIG]
           const Icon = STATUS_ICONS[item.status] || CheckCircle2
 
           return (
@@ -75,7 +75,7 @@ export default function StatusesPage() {
                 </div>
                 <Badge
                   variant="outline"
-                  className={`${config.color} border-none shadow-none`}
+                  className={`${config.css} border-none shadow-none`}
                 >
                   {item.status}
                 </Badge>
