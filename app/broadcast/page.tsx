@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Send, Users, Shield, RefreshCcw } from "lucide-react"
-import { STATUS_CONFIG, ROLE_CONFIG } from "@/lib/constants"
+import { Send, Shield, RefreshCcw } from "lucide-react"
+import { LEAD_ROLE_CONFIG, LEAD_STATUS_CONFIG } from "@/lib/constants"
 
 export default function BroadcastPage() {
   const [message, setMessage] = useState("")
@@ -35,8 +35,8 @@ export default function BroadcastPage() {
   }
 
   const selectAll = () => {
-    setSelectedRoles(Object.keys(ROLE_CONFIG))
-    setSelectedStatuses(Object.keys(STATUS_CONFIG))
+    setSelectedRoles(Object.keys(LEAD_ROLE_CONFIG))
+    setSelectedStatuses(Object.keys(LEAD_STATUS_CONFIG))
   }
 
   const clearFilters = () => {
@@ -77,7 +77,7 @@ export default function BroadcastPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {Object.entries(ROLE_CONFIG).map(([key, config]) => (
+              {Object.entries(LEAD_ROLE_CONFIG).map(([key, config]) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={`role-${key}`}
@@ -102,7 +102,7 @@ export default function BroadcastPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+              {Object.entries(LEAD_STATUS_CONFIG).map(([key, config]) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={`status-${key}`}
@@ -155,17 +155,17 @@ export default function BroadcastPage() {
               <div className="flex flex-wrap gap-2">
                 {selectedRoles.map((r) => (
                   <Badge key={r} variant="secondary">
-                    {ROLE_CONFIG[r as keyof typeof ROLE_CONFIG].label}
+                    {LEAD_ROLE_CONFIG[r as keyof typeof LEAD_ROLE_CONFIG].label}
                   </Badge>
                 ))}
                 {selectedStatuses.map((s) => (
                   <Badge
                     key={s}
                     className={
-                      STATUS_CONFIG[s as keyof typeof STATUS_CONFIG].color
+                      LEAD_STATUS_CONFIG[s as keyof typeof LEAD_STATUS_CONFIG].css
                     }
                   >
-                    {STATUS_CONFIG[s as keyof typeof STATUS_CONFIG].label}
+                    {LEAD_STATUS_CONFIG[s as keyof typeof LEAD_STATUS_CONFIG].label}
                   </Badge>
                 ))}
               </div>
