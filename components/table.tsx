@@ -1,3 +1,5 @@
+"use client"
+
 import { LEAD_STATUS_CONFIG } from "@/lib/constants"
 import { Button } from "./ui/button"
 import {
@@ -24,6 +26,7 @@ import {
   TableRow,
 } from "./ui/table"
 import { Badge } from "./ui/badge"
+import { useEffect, useState } from "react"
 
 export interface ColumnConfig<T> {
   header: string // Назва в шапці
@@ -38,6 +41,15 @@ interface UniversalTableProps<T> {
   data: T[]
   columns: ColumnConfig<T>[]
   onDelete?: (id: string | number) => void
+}
+
+interface ModalProps {
+  id: string | number
+  title: string
+  colKey: string | number | symbol //string
+  username: string
+  currentValue: string
+  options: { value: string; label: string }[]
 }
 
 const TextCell = ({ value }: { value: any }) => (
@@ -58,7 +70,7 @@ const BadgeIconCell = ({
 
   return (
     <button
-      //onClick={() => onEdit(client as any, "role")} // Тимчасово any, поки типи не синхронізовані
+      onClick={onClick}
       className="group flex cursor-pointer items-center gap-1.5 transition-transform active:scale-95"
     >
       <Badge variant="outline" className={`${config.css} border-current/20`}>
@@ -69,11 +81,20 @@ const BadgeIconCell = ({
   )
 }
 
-export function UniversalTable<T extends { id: string | number }>({
-  data,
-  columns,
-  onDelete,
-}: UniversalTableProps<T>) {
+export function UniversalTable<
+  T extends {
+    id: string | number
+    firstName: string
+    lastName: string
+    phone: string
+    role: string
+    status: string
+    telegram: string
+  },
+  >({ data, columns, onDelete }: UniversalTableProps<T>) {
+  const [users, setUsers] = useState(data)
+  const [modal, setModal] = useState<ModalProps | null>(null)
+
   const handleDelete = (e: React.MouseEvent, id: string | number) => {
     e.stopPropagation() // Важливо: щоб не спрацював перехід по кліку на рядок
 
@@ -81,6 +102,37 @@ export function UniversalTable<T extends { id: string | number }>({
       onDelete?.(id)
     }
   }
+
+  const handleSave = () => {
+    if (!modal || !modal.id) return
+
+    const newValue = modal.currentValue
+
+    // 1. Оновлюємо стейт даних (наприклад, leads)
+    setUsers((prev) =>
+      prev.map(
+        (item) =>
+          item.id === modal.id
+            ? { ...item, [modal.colKey]: newValue } // Створюємо новий об'єкт ТІЛЬКИ для цього рядка
+            : item // Інші об'єкти залишаються тими самими (referential equality)
+      )
+    )
+
+    // 2. Закриваємо модалку
+    setModal(null)
+  }
+
+  const openModal = ({
+    id,
+    title,
+    colKey,
+    username,
+    currentValue,
+    options,
+  }: ModalProps) => {
+    setModal({ id, title, colKey, username, currentValue, options })
+  }
+
   return (
     <>
       <Table>
@@ -94,7 +146,7 @@ export function UniversalTable<T extends { id: string | number }>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.map((item) => (
+          {users?.map((item) => (
             <TableRow key={item.id}>
               {columns.map((col, i) => (
                 <TableCell className={col.className} key={i}>
@@ -107,23 +159,32 @@ export function UniversalTable<T extends { id: string | number }>({
                     // 2. Рендер на основі типу
                     switch (col.type) {
                       case "badge-icon":
-                        {
-                          const itemConfig = col.config
-                            ? col.config[String(value)]
-                            : null
-
-                          return (
-                            <BadgeIconCell
-                              value={item}
-                              config={col.config}
-                            />
-                          )
-                        }
-                        break;
+                        return (
+                          <BadgeIconCell
+                            value={item}
+                            config={col.config}
+                            onClick={() => {
+                              openModal({
+                                id: item.id,
+                                title: col.header,
+                                colKey: col.key,
+                                currentValue: item.role,
+                                username: `${item.firstName} ${item.lastName}`,
+                                options: Object.entries(col.config || {}).map(
+                                  ([key, info]: any) => ({
+                                    value: key,
+                                    label: info.label,
+                                  })
+                                ),
+                              })
+                            }}
+                          />
+                        )
+                        break
 
                       case "text":
                         return <TextCell value={value} />
-                        break;
+                        break
                     }
                   })()}
                 </TableCell>
@@ -134,39 +195,47 @@ export function UniversalTable<T extends { id: string | number }>({
       </Table>
 
       {/* МОДАЛЬНЕ ВІКНО ЗМІНИ РОЛІ */}
-      {/* <Dialog open={!!modalConfig} onOpenChange={() => setModalConfig(null)}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{modalConfig?.title}</DialogTitle>
-            <DialogDescription>
-              Встановіть нове значення для @
-              {selectedUser?.username || "користувача"}
-            </DialogDescription>
-          </DialogHeader>
+      {modal && (
+        <Dialog open={!!modal} onOpenChange={() => setModal(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{modal?.title}</DialogTitle>
+              <DialogDescription>
+                Встановіть нове значення для {modal.username || "користувача"}
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="py-4">
-            <Select value={currentValue} onValueChange={setCurrentValue}>
-              <SelectTrigger>
-                <SelectValue placeholder="Виберіть значення" />
-              </SelectTrigger>
-              <SelectContent>
-                {modalConfig?.options.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="py-4">
+              <Select
+                value={modal.currentValue}
+                onValueChange={(val) =>
+                  setModal((prev) =>
+                    prev ? { ...prev, currentValue: val } : null
+                  )
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Виберіть значення" />
+                </SelectTrigger>
+                <SelectContent>
+                  {modal.options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalConfig(null)}>
-              Скасувати
-            </Button>
-            <Button onClick={handleSave}>Зберегти зміни</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setModal(null)}>
+                Скасувати
+              </Button>
+              <Button onClick={handleSave}>Зберегти зміни</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }
