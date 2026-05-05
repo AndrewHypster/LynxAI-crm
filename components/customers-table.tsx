@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Phone, Shield, Send, Trash2 } from "lucide-react"
+import { Phone, Send, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -47,14 +47,6 @@ type ModalConfig = {
   field: "role" | "status"
   options: { label: string; value: string }[]
 } | null
-
-interface Client {
-  id: string
-  firstName: string
-  lastName?: string
-  role: LeadRole
-  telegram?: string
-}
 
 interface CustomerRowProps {
   client: Lead
@@ -106,11 +98,9 @@ const CustomerRow = React.memo(
           </button>
         </TableCell>
 
-        {/* СТАТУС (тут була помилка в логіці, статус зазвичай окреме поле) */}
         <TableCell>
           <button
             onClick={() => onEdit(client, "status")}
-            // Використовуємо statusConfig замість status
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-black tracking-wider transition-all hover:opacity-80 active:scale-95 ${statusConfig.css}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${statusConfig.dot}`} />
@@ -184,25 +174,30 @@ export function CustomersTable({ initialData }: { initialData: Lead[] }) {
     setSelectedUser(user)
     setCurrentValue(user[field])
 
+    const USER_ROLE_OPTIONS = Object.entries(LEAD_ROLE_CONFIG).map(
+      ([value, config]) => ({
+        label: config.label,
+        value: value,
+      })
+    )
+    
+    const USER_STATUS_OPTIONS = Object.entries(LEAD_STATUS_CONFIG).map(
+      ([value, config]) => ({
+        label: config.label,
+        value: value,
+      })
+    )
+    
     const config: Record<string, ModalConfig> = {
       role: {
         title: "Зміна ролі",
         field: "role",
-        options: [
-          { label: "Користувач", value: "USER" },
-          { label: "Менеджер", value: "MANAGER" },
-          { label: "Адміністратор", value: "ADMIN" },
-        ],
+        options: USER_ROLE_OPTIONS,
       },
       status: {
         title: "Зміна статусу",
         field: "status",
-        options: [
-          { label: "Новий", value: "NEW" },
-          { label: "Активний", value: "ACTIVE" },
-          { label: "Завершено", value: "COMPLETED" },
-          { label: "Заблоковано", value: "BANNED" },
-        ],
+        options: USER_STATUS_OPTIONS,
       },
     }
 
@@ -231,9 +226,6 @@ export function CustomersTable({ initialData }: { initialData: Lead[] }) {
     setModalConfig(null) // Закриваємо модалку
 
     console.log("Дані оновлено в інтерфейсі")
-
-    // 2. ТУТ БУДЕ ЗАПИТ ДО БАЗИ (Prisma)
-    // await updateInDatabase(selectedUser.id, { [modalConfig.field]: currentValue });
   }
 
   return (

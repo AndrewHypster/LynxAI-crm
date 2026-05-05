@@ -44,8 +44,15 @@ export const LEAD_ROLES = {
   REALTOR: "REALTOR",
   UNDEFINED: "UNDEFINED",
 } as const
-
 export type LeadRole = keyof typeof LEAD_ROLES
+
+export const LEAD_STATUSES = {
+  NEW: "NEW",
+  ACTIVE: "ACTIVE",
+  COMPLETED: "COMPLETED",
+  BANNED: "BANNED",
+} as const
+export type LeadStatuses = keyof typeof LEAD_STATUSES
 
 export interface Lead {
   id: string
@@ -54,7 +61,7 @@ export interface Lead {
   telegram: string
   phone?: string | null
   role: LeadRole
-  status: string
+  status: LeadStatuses
 }
 
 export const LEAD_ROLE_CONFIG = {
@@ -79,22 +86,22 @@ export const LEAD_ROLE_CONFIG = {
 } as const
 
 export const LEAD_STATUS_CONFIG = {
-  NEW: {
+  [LEAD_STATUSES.NEW]: {
     label: "НОВИЙ",
     dot: "bg-blue-500",
     css: "bg-blue-50 text-blue-600 border-blue-200",
   },
-  ACTIVE: {
+  [LEAD_STATUSES.ACTIVE]: {
     label: "АКТИВНИЙ",
     dot: "bg-emerald-500",
     css: "bg-emerald-50 text-emerald-600 border-emerald-200",
   },
-  COMPLETED: {
+  [LEAD_STATUSES.COMPLETED]: {
     label: "ЗАВЕРШЕНО",
     dot: "bg-orange-500",
     css: "bg-orange-50 text-orange-700 border-orange-200",
   },
-  BANNED: {
+  [LEAD_STATUSES.BANNED]: {
     label: "ЗАБЛОКОВАНО",
     dot: "bg-red-500",
     css: "bg-red-50 text-red-600 border-red-200",
