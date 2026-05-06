@@ -31,8 +31,8 @@ export const NAV_CONFIG = [
     title: "Керування",
     items: [
       {
-        title: "Всі Компанії",
-        url: "/creator/companies",
+        title: "Всі Користувачі",
+        url: "/users",
         icon: Briefcase,
         roles: ["CREATOR"],
       },
@@ -40,7 +40,7 @@ export const NAV_CONFIG = [
         title: "Команда",
         url: "/admin/team",
         icon: Users,
-        roles: ["ADMIN", "CREATOR"],
+        roles: ["ADMIN"],
       },
       {
         title: "Ліди",

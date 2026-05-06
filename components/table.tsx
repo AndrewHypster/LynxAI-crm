@@ -1,6 +1,5 @@
 "use client"
 
-import { LEAD_STATUS_CONFIG } from "@/lib/constants"
 import { Button } from "./ui/button"
 import {
   Dialog,
@@ -26,7 +25,7 @@ import {
   TableRow,
 } from "./ui/table"
 import { Badge } from "./ui/badge"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 export interface ColumnConfig<T> {
   header: string // Назва в шапці
@@ -34,19 +33,34 @@ export interface ColumnConfig<T> {
   type: "text" | "badge-icon" | "badge-dot" | "custom"
   config?: Record<string, { label?: string; icon?: any; css?: string }>
   className?: string
-  render?: (item: T, actions?: any) => React.ReactNode
+  render?: (item: any, actions?: any) => React.ReactNode
 }
 
 interface UniversalTableProps<T> {
-  data: T[]
+  data: any[]
   columns: ColumnConfig<T>[]
-  onDelete?: (id: string | number) => void
+  onChange: ({
+    id,
+    key,
+    value,
+  }: {
+    id: string
+    key: string
+    value: string
+  }) => void
+}
+
+interface BaseEntity {
+  id: string | number
+  firstName?: string | null // Додаємо | null
+  lastName?: string | null // Додаємо | null
+  role?: string | null // Додаємо | null
 }
 
 interface ModalProps {
-  id: string | number
+  id: string
   title: string
-  colKey: string | number | symbol //string
+  colKey: string //string
   username: string
   currentValue: string
   options: { value: string; label: string }[]
@@ -81,46 +95,119 @@ const BadgeIconCell = ({
   )
 }
 
-export function UniversalTable<
-  T extends {
-    id: string | number
-    firstName: string
-    lastName: string
-    phone: string
-    role: string
-    status: string
-    telegram: string
-  },
-  >({ data, columns, onDelete }: UniversalTableProps<T>) {
-  const [users, setUsers] = useState(data)
+const BadgeDotCell = ({
+  value,
+  config,
+  onClick,
+}: {
+  value: any
+  config: any
+  onClick?: () => void
+}) => {
+  config = config[value.status]
+
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-black tracking-wider transition-all hover:opacity-80 active:scale-95 ${config.css}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+      {config.label}
+    </button>
+  )
+}
+
+const TableRowMemo = React.memo(
+  <T extends BaseEntity>({
+    columns,
+    item,
+    openModal,
+  }: {
+    columns: ColumnConfig<T>[]
+    item: T
+    openModal: any
+  }) => (
+    <TableRow>
+      {columns.map((col, i) => (
+        <TableCell className={col.className} key={i}>
+          {(() => {
+            // 1. Пріоритет у кастомного рендеру (якщо він прописаний)
+            if (col.render) return col.render(item)
+
+            const value = item[col.key as keyof T]
+
+            // 2. Рендер на основі типу
+            switch (col.type) {
+              case "badge-icon":
+                return (
+                  <BadgeIconCell
+                    value={item}
+                    config={col.config}
+                    onClick={() => {
+                      openModal({
+                        id: item.id as string,
+                        title: col.header,
+                        colKey: col.key as string,
+                        currentValue: item[col.key as keyof typeof item],
+                        username: `${item.firstName} ${item.lastName}`,
+                        options: Object.entries(col.config || {}).map(
+                          ([key, info]: any) => ({
+                            value: key,
+                            label: info.label,
+                          })
+                        ),
+                      })
+                    }}
+                  />
+                )
+                break
+
+              case "text":
+                return <TextCell value={value} />
+                break
+
+              case "badge-dot":
+                return (
+                  <BadgeDotCell
+                    value={item}
+                    config={col.config}
+                    onClick={() => {
+                      openModal({
+                        id: item.id as string,
+                        title: col.header,
+                        colKey: col.key as string,
+                        currentValue: item[col.key as keyof typeof item],
+                        username: `${item.firstName} ${item.lastName}`,
+                        options: Object.entries(col.config || {}).map(
+                          ([key, info]: any) => ({
+                            value: key,
+                            label: info.label,
+                          })
+                        ),
+                      })
+                    }}
+                  />
+                )
+
+                break
+            }
+          })()}
+        </TableCell>
+      ))}
+    </TableRow>
+  )
+) as <T extends BaseEntity>(props: {
+  columns: ColumnConfig<T>[]
+  item: T
+  openModal: any
+}) => React.ReactElement
+
+export function UniversalTable<T extends BaseEntity>({
+  data,
+  columns,
+  onChange,
+}: UniversalTableProps<T>) {
   const [modal, setModal] = useState<ModalProps | null>(null)
-
-  const handleDelete = (e: React.MouseEvent, id: string | number) => {
-    e.stopPropagation() // Важливо: щоб не спрацював перехід по кліку на рядок
-
-    if (confirm("Ви впевнені, що хочете видалити цей запис?")) {
-      onDelete?.(id)
-    }
-  }
-
-  const handleSave = () => {
-    if (!modal || !modal.id) return
-
-    const newValue = modal.currentValue
-
-    // 1. Оновлюємо стейт даних (наприклад, leads)
-    setUsers((prev) =>
-      prev.map(
-        (item) =>
-          item.id === modal.id
-            ? { ...item, [modal.colKey]: newValue } // Створюємо новий об'єкт ТІЛЬКИ для цього рядка
-            : item // Інші об'єкти залишаються тими самими (referential equality)
-      )
-    )
-
-    // 2. Закриваємо модалку
-    setModal(null)
-  }
 
   const openModal = ({
     id,
@@ -146,50 +233,13 @@ export function UniversalTable<
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users?.map((item) => (
-            <TableRow key={item.id}>
-              {columns.map((col, i) => (
-                <TableCell className={col.className} key={i}>
-                  {(() => {
-                    // 1. Пріоритет у кастомного рендеру (якщо він прописаний)
-                    if (col.render) return col.render(item)
-
-                    const value = item[col.key as keyof T]
-
-                    // 2. Рендер на основі типу
-                    switch (col.type) {
-                      case "badge-icon":
-                        return (
-                          <BadgeIconCell
-                            value={item}
-                            config={col.config}
-                            onClick={() => {
-                              openModal({
-                                id: item.id,
-                                title: col.header,
-                                colKey: col.key,
-                                currentValue: item.role,
-                                username: `${item.firstName} ${item.lastName}`,
-                                options: Object.entries(col.config || {}).map(
-                                  ([key, info]: any) => ({
-                                    value: key,
-                                    label: info.label,
-                                  })
-                                ),
-                              })
-                            }}
-                          />
-                        )
-                        break
-
-                      case "text":
-                        return <TextCell value={value} />
-                        break
-                    }
-                  })()}
-                </TableCell>
-              ))}
-            </TableRow>
+          {data?.map((item, key) => (
+            <TableRowMemo
+              key={item.id}
+              columns={columns}
+              item={item}
+              openModal={openModal}
+            />
           ))}
         </TableBody>
       </Table>
@@ -231,7 +281,18 @@ export function UniversalTable<
               <Button variant="outline" onClick={() => setModal(null)}>
                 Скасувати
               </Button>
-              <Button onClick={handleSave}>Зберегти зміни</Button>
+              <Button
+                onClick={() => {
+                  onChange({
+                    id: modal.id,
+                    key: modal.colKey,
+                    value: modal.currentValue,
+                  })
+                  setModal(null)
+                }}
+              >
+                Зберегти зміни
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

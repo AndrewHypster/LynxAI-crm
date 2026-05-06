@@ -22,18 +22,45 @@ export const USER_ROLE_CONFIG = {
   [USER_ROLES.CREATOR]: {
     label: "Засновник",
     icon: ShieldCheck,
-    color: "text-red-600 bg-red-50 border-red-200",
+    css: "text-red-600 bg-red-50 border-red-200",
   },
   [USER_ROLES.ADMIN]: {
     label: "Адмін",
     icon: UserCog,
-    color: "text-purple-600 bg-purple-50 border-purple-200",
+    css: "text-purple-600 bg-purple-50 border-purple-200",
   },
   [USER_ROLES.MANAGER]: {
     label: "Менеджер",
     icon: Contact,
-    color: "text-blue-600 bg-blue-50 border-blue-200",
+    css: "text-blue-600 bg-blue-50 border-blue-200",
   },
+} as const
+
+export const USER_STATUS_CONFIG = {
+  ACTIVE: {
+    label: "Активний",
+    css: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  },
+  INACTIVE: {
+    label: "Неактивний",
+    css: "bg-slate-100 text-slate-600 border-slate-200",
+  },
+  PENDING: {
+    label: "Очікування",
+    css: "bg-amber-100 text-amber-700 border-amber-200",
+  },
+} as const
+
+export type UserStatus = keyof typeof USER_STATUS_CONFIG
+
+export interface User {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: UserRole
+  status: UserStatus
+  createdAt: string
 }
 
 // ==========================================
