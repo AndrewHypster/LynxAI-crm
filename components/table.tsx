@@ -73,14 +73,16 @@ const TextCell = ({ value }: { value: any }) => (
 const BadgeIconCell = ({
   value,
   config,
+  colKey,
   onClick,
 }: {
   value: any
   config: any
+  colKey: any
   onClick?: () => void
 }) => {
-  config = config[value.role]
-  const RoleIcon = config.icon
+  config = config[value[colKey]]
+  const Icon = config.icon
 
   return (
     <button
@@ -88,7 +90,7 @@ const BadgeIconCell = ({
       className="group flex cursor-pointer items-center gap-1.5 transition-transform active:scale-95"
     >
       <Badge variant="outline" className={`${config.css} border-current/20`}>
-        <RoleIcon className="mr-1 size-3" />
+        <Icon className="mr-1 size-3" />
         {config.label}
       </Badge>
     </button>
@@ -98,13 +100,16 @@ const BadgeIconCell = ({
 const BadgeDotCell = ({
   value,
   config,
+  colKey,
   onClick,
 }: {
   value: any
-  config: any
+    config: any
+  colKey: any
   onClick?: () => void
-}) => {
-  config = config[value.status]
+  }) => {
+  
+  config = config[value[colKey]]
 
   return (
     <button
@@ -143,6 +148,7 @@ const TableRowMemo = React.memo(
                   <BadgeIconCell
                     value={item}
                     config={col.config}
+                    colKey={col.key}
                     onClick={() => {
                       openModal({
                         id: item.id as string,
@@ -171,6 +177,7 @@ const TableRowMemo = React.memo(
                   <BadgeDotCell
                     value={item}
                     config={col.config}
+                    colKey={col.key}
                     onClick={() => {
                       openModal({
                         id: item.id as string,

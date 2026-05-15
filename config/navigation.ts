@@ -7,6 +7,7 @@ import {
   PieChart,
   ShieldCheck,
   LucideLayers,
+  Home,
 } from "lucide-react"
 
 export const NAV_CONFIG = [
@@ -46,6 +47,12 @@ export const NAV_CONFIG = [
         title: "Ліди",
         url: "/leads",
         icon: BarChart3,
+        roles: ["MANAGER", "ADMIN"],
+      },
+      {
+        title: "Об'єкти",
+        url: "/properties",
+        icon: Home,
         roles: ["MANAGER", "ADMIN"],
       },
     ],

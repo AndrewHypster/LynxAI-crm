@@ -5,6 +5,14 @@ import {
   User,
   Building2,
   HelpCircle,
+  House,
+  Building,
+  LandPlot,
+  Factory,
+  CircleCheck,
+  Key,
+  Ban,
+  Clock,
 } from "lucide-react"
 
 // ==========================================
@@ -144,3 +152,118 @@ export interface LeadDetails extends Lead {
   amenities: string[] // ['Паркінг', 'Балкон']
   aiSummary: string // Текст від ШІ
 }
+
+// =======================
+// 3. PROPERTY (власність)
+// =======================
+export const PROPERTY_TYPES = {
+  HOUSE: "HOUSE",
+  APARTMENT: "APARTMENT",
+  LAND: "LAND",
+  COMMERCIAL: "COMMERCIAL",
+} as const
+
+export const PROPERTY_TYPE_CONFIG = {
+  [PROPERTY_TYPES.HOUSE]: {
+    label: "Житло",
+    icon: House,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_TYPES.APARTMENT]: {
+    label: "Квартира",
+    icon: Building,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_TYPES.LAND]: {
+    label: "Ділянка",
+    icon: LandPlot,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_TYPES.COMMERCIAL]: {
+    label: "Комрція",
+    icon: Factory,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+}
+
+export type PropertyTypes = keyof typeof PROPERTY_TYPES
+
+export const PROPERTY_STATUSES = {
+  AVAILABLE: "AVAILABLE",
+  RENTED: "RENTED",
+  SOLD: "SOLD",
+  RESERVED: "RESERVED",
+} as const
+
+export const PROPERTY_STATUS_CONFIG = {
+  [PROPERTY_STATUSES.AVAILABLE]: {
+    label: "Доступне",
+    icon: CircleCheck,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_STATUSES.RENTED]: {
+    label: "Орендовано",
+    icon: Key,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_STATUSES.SOLD]: {
+    label: "Продано",
+    icon: Ban,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+  [PROPERTY_STATUSES.RESERVED]: {
+    label: "Резервоване",
+    icon: Clock,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
+}
+
+export type PropertyStatuses = keyof typeof PROPERTY_STATUSES
+
+export type Benefit =
+  | "PARKING"
+  | "ELEVATOR"
+  | "BALCONY"
+  | "POOL"
+  | "SECURITY"
+  | "WIFI"
+  | "FURNISHED"
+  | "PETS_ALLOWED"
+  | "AIR_CONDITIONING"
+  | "GARDEN"
+
+export interface BaseProperty {
+  id: string // id нерухомості
+  ownerId: string // id власника (агенства / реєлтора)
+  title: string // заголовок
+  address: string // адрес
+  location?: string // координати
+  type: PropertyTypes // хата | квартира | земля | комерція
+  status: PropertyStatuses // доступне | орендовано | продано | заброньовано
+  salePrice?: number | null // Ціна повного викупу
+  rentPrice?: number | null // Ціна оренди за місяць
+  currency: "USD" | "EUR" | "UAH" // Валюта
+  isForSale: boolean // для продажу
+  isForRent: boolean // для оренди
+  area: number // Площа в м²
+  rooms?: number // кільк кімнат
+  floor?: number // поверх
+  images: string[] // Масив посилань на фото
+  description?: string // опис
+  benefits?: Benefit[] // список особливостей
+  documents?: string // силка на документ
+  createdAt: string // дата створення
+}
+
+export interface HouseProperty extends BaseProperty {}
+export interface ApartmentProperty extends BaseProperty {}
+export interface LandProperty extends BaseProperty {}
+export interface CommercialProperty extends BaseProperty {}
