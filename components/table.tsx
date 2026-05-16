@@ -39,6 +39,7 @@ export interface ColumnConfig<T> {
 interface UniversalTableProps<T> {
   data: any[]
   columns: ColumnConfig<T>[]
+
   onChange: ({
     id,
     key,
@@ -47,7 +48,15 @@ interface UniversalTableProps<T> {
     id: string
     key: string
     value: string
-  }) => void
+    }) => void
+  
+  pagination?: {
+    currentPage: number
+    pageSize: number
+    onPageChange: (page: number) => void
+    onPageSizeChange?: (size: number) => void
+    totalCount?: number // якщо бекенд повертає загальну кількість
+  }
 }
 
 interface BaseEntity {
@@ -60,7 +69,7 @@ interface BaseEntity {
 interface ModalProps {
   id: string
   title: string
-  colKey: string //string
+  colKey: string
   username: string
   currentValue: string
   options: { value: string; label: string }[]
@@ -82,16 +91,16 @@ const BadgeIconCell = ({
   onClick?: () => void
 }) => {
   config = config[value[colKey]]
-  const Icon = config.icon
+  const Icon = config?.icon
 
   return (
     <button
       onClick={onClick}
       className="group flex cursor-pointer items-center gap-1.5 transition-transform active:scale-95"
     >
-      <Badge variant="outline" className={`${config.css} border-current/20`}>
-        <Icon className="mr-1 size-3" />
-        {config.label}
+      <Badge variant="outline" className={`${config?.css} border-current/20`}>
+        {config && <Icon className="mr-1 size-3" />}
+        {config?.label}
       </Badge>
     </button>
   )
@@ -110,14 +119,16 @@ const BadgeDotCell = ({
   }) => {
   
   config = config[value[colKey]]
+  console.log(config);
+  
 
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-black tracking-wider transition-all hover:opacity-80 active:scale-95 ${config.css}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-black tracking-wider transition-all hover:opacity-80 active:scale-95 ${config?.css}`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
-      {config.label}
+      <span className={`h-1.5 w-1.5 rounded-full ${config?.dot}`} />
+      {config?.label}
     </button>
   )
 }
@@ -213,6 +224,7 @@ export function UniversalTable<T extends BaseEntity>({
   data,
   columns,
   onChange,
+  pagination
 }: UniversalTableProps<T>) {
   const [modal, setModal] = useState<ModalProps | null>(null)
 
@@ -250,6 +262,62 @@ export function UniversalTable<T extends BaseEntity>({
           ))}
         </TableBody>
       </Table>
+
+      {/* ПАНЕЛЬ ПАГІНАЦІЇ */}
+      {pagination && (
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-800 dark:bg-gray-950">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <Button
+              variant="outline"
+              disabled={pagination.currentPage === 1}
+              onClick={() =>
+                pagination.onPageChange(pagination.currentPage - 1)
+              }
+            >
+              Назад
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                pagination.onPageChange(pagination.currentPage + 1)
+              }
+            >
+              Вперед
+            </Button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                Поточна сторінка{" "}
+                <span className="font-medium">{pagination.currentPage}</span>
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pagination.currentPage === 1}
+                onClick={() =>
+                  pagination.onPageChange(pagination.currentPage - 1)
+                }
+              >
+                Попередня
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                // Якщо бек не дає totalCount, блокуємо кнопку, якщо прийшло менше елементів, ніж pageSize
+                disabled={data.length < pagination.pageSize}
+                onClick={() =>
+                  pagination.onPageChange(pagination.currentPage + 1)
+                }
+              >
+                Наступна
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* МОДАЛЬНЕ ВІКНО ЗМІНИ РОЛІ */}
       {modal && (

@@ -75,45 +75,50 @@ export interface User {
 // 2. LEAD ROLES (Для клієнтів/лідів у базі)
 // ==========================================
 export const LEAD_ROLES = {
-  BUYER: "BUYER",
-  REALTOR: "REALTOR",
-  UNDEFINED: "UNDEFINED",
+  buyer: "buyer",
+  seller: "seller",
+  partner: "partner",
 } as const
 export type LeadRole = keyof typeof LEAD_ROLES
 
 export const LEAD_STATUSES = {
-  NEW: "NEW",
-  ACTIVE: "ACTIVE",
-  COMPLETED: "COMPLETED",
-  BANNED: "BANNED",
+  new: "new",
+  active: "active",
+  deal: "deal",
+  lost: "lost",
 } as const
 export type LeadStatuses = keyof typeof LEAD_STATUSES
 
 export interface Lead {
-  id: string
-  firstName: string
-  lastName?: string | null
-  telegram: string
-  phone?: string | null
-  role: LeadRole
-  status: LeadStatuses
+  id: number
+  full_name: string | null
+  phone: string | null
+  status: LeadStatuses | string
+  role: LeadRole | string
+  budget: string | null
+  readiness_for_selection: string | null
+  created_at: string // Date
+  manager_id: number | null
+  interest_reason: string | null
+  role_label: string  // read only
+  status_label: string  // read only
 }
 
 export const LEAD_ROLE_CONFIG = {
-  [LEAD_ROLES.BUYER]: {
+  [LEAD_ROLES.buyer]: {
     label: "Покупець",
     icon: User,
     dot: "bg-emerald-500",
     css: "text-emerald-700 bg-emerald-50 border-emerald-200",
   },
-  [LEAD_ROLES.REALTOR]: {
-    label: "Ріелтор",
+  [LEAD_ROLES.seller]: {
+    label: "Продавець",
     icon: Building2,
     dot: "bg-cyan-500",
     css: "text-cyan-700 bg-cyan-50 border-cyan-200",
   },
-  [LEAD_ROLES.UNDEFINED]: {
-    label: "Невизначено",
+  [LEAD_ROLES.partner]: {
+    label: "Партнер",
     icon: HelpCircle,
     dot: "bg-slate-400",
     css: "text-slate-600 bg-slate-50 border-slate-200",
@@ -121,22 +126,22 @@ export const LEAD_ROLE_CONFIG = {
 } as const
 
 export const LEAD_STATUS_CONFIG = {
-  [LEAD_STATUSES.NEW]: {
+  [LEAD_STATUSES.new]: {
     label: "НОВИЙ",
     dot: "bg-blue-500",
     css: "bg-blue-50 text-blue-600 border-blue-200",
   },
-  [LEAD_STATUSES.ACTIVE]: {
+  [LEAD_STATUSES.active]: {
     label: "АКТИВНИЙ",
     dot: "bg-emerald-500",
     css: "bg-emerald-50 text-emerald-600 border-emerald-200",
   },
-  [LEAD_STATUSES.COMPLETED]: {
+  [LEAD_STATUSES.deal]: {
     label: "ЗАВЕРШЕНО",
     dot: "bg-orange-500",
     css: "bg-orange-50 text-orange-700 border-orange-200",
   },
-  [LEAD_STATUSES.BANNED]: {
+  [LEAD_STATUSES.lost]: {
     label: "ЗАБЛОКОВАНО",
     dot: "bg-red-500",
     css: "bg-red-50 text-red-600 border-red-200",
@@ -144,13 +149,157 @@ export const LEAD_STATUS_CONFIG = {
 } as const
 
 export interface LeadDetails extends Lead {
-  budget: number
-  intent: "RENT" | "BUY"
-  location: string
-  rooms: number
-  hasBenefits: boolean
-  amenities: string[] // ['Паркінг', 'Балкон']
-  aiSummary: string // Текст від ШІ
+  telegram_id: number | null
+  username: string | null
+  phone_normalized: string | null
+  phone_location: string | null
+  is_ukraine: boolean | null
+  messengers: string | null
+  preferred_comm: string | null
+  stage: string | null
+  result: string | null
+  contact_status: string | null
+  priority: string | null
+  action_priority: string | null
+  timeline: string | null
+  warmth: number | null
+  district: string | null
+  rooms: string | null
+  floor: string | null
+  wishes: string | null
+  family_members: string | null
+  property_type: string | null
+  area: string | null
+  floor_info: string | null
+  repair: string | null
+  property_name: string | null
+  budget_min: string | null
+  budget_max: string | null
+  expected_price: string | null
+  income: string | null
+  down_payment: string | null
+  monthly_payment: string | null
+  calculated_payment: string | null
+  family_income: string | null
+  deal_value: string | null
+  surcharge: string | null
+  finance_format: string | null
+  purpose: string | null
+  format: string | null
+  utm_source: string | null
+  utm_medium: string | null
+  utm_campaign: string | null
+  utm_term: string | null
+  utm_content: string | null
+  click_id: string | null
+  user_id: number
+  shift_id: number | null
+  updated_at: string // Date
+  assigned_at: string | null
+  taken_in_work_at: string | null
+  first_reaction_at:  string | null
+  last_client_activity:  string | null
+  last_followup_at:  string | null
+  snooze_until:  string | null
+  next_step_date:  string | null
+  expected_closing_date:  string | null
+  deleted_at:  string | null
+  closure_date:  string | null
+  first_response_time: number | null
+  reassigned_count: number | null
+  contact_attempts: number | null
+  contact_source: string | null
+  night_lead: boolean | null
+  repeat_clientExpand: boolean | null
+repeat_countExpand: number | null
+first_contactExpand: boolean | null
+speed_to_leadExpand: number | null
+sla_breachExpand: boolean | null
+variants_foundExpand: number | null
+variants_sentExpand: boolean | null
+is_testExpand: boolean | null
+scenarioExpand: string | null
+scenario_idExpand: string | null
+scenario_typeExpand: string | null
+stage_719Expand: string | null
+readiness_for_selectionExpand: string | null
+main_requestExpand: string | null
+funnel_nameExpand: string | null
+is_for_clientExpand: boolean | null
+benefit_categoryExpand: string | null
+accessibilityExpand: string | null
+social_statusExpand: string | null
+social_has_housingExpand: string | null
+social_received_compExpand: string | null
+social_on_queueExpand: string | null
+social_recommendationExpand: string | null
+has_propertyExpand: boolean | null
+total_area_existingExpand: string | null
+existing_areaExpand: string | null
+selling_currentExpand: boolean | null
+building_statusExpand: string | null
+ownership_typeExpand: string | null
+partnership_typeExpand: string | null
+agency_nameExpand: string | null
+partner_flagExpand: boolean | null
+partner_sourceExpand: string | null
+partner_formatExpand: string | null
+partner_client_infoExpand: string | null
+partner_rewardExpand: string | null
+partner_statusExpand: string | null
+val_addressExpand: string | null
+val_reasonExpand: string | null
+valuation_typeExpand: string | null
+valuation_repairExpand: string | null
+valuation_furnitureExpand: string | null
+seller_buy_roomsExpand: string | null
+seller_buy_districtExpand: string | null
+seller_buy_budgetExpand: string | null
+seller_buy_surchargeExpand: string | null
+seller_buy_typeExpand: string | null
+eoselia_readyExpand: string | null
+eoselia_detailsExpand: any | null
+post_sale_planExpand: string | null
+documents_readyExpand: boolean | null
+counter_purchaseExpand: boolean | null
+commentExpand: string | null
+status_notesExpand: string | null
+feedbackExpand: string | null
+loss_reasonExpand: string | null
+reason_urgentExpand: string | null
+reason_refusalExpand: string | null
+post_survey_commentExpand: string | null
+raw_dataExpand: any | null
+notion_page_idExpand: string | null
+notion_urlExpand: string | null
+notion_sync_statusExpand: string | null
+notion_synced_atExpand: string | null
+lead_status_notionExpand: string | null
+ai_scoreExpand: number | null
+ai_summaryExpand: string | null
+survey_statusExpand: string | null
+survey_progressExpand: string | null
+qualification_statusExpand: string | null
+client_timezoneExpand: string | null
+last_stepExpand: string | null
+followup_levelExpand: number | null
+is_reminder_sentExpand: boolean | null
+selection_modeExpand: string | null
+showing_countExpand: number | null
+matched_objects_idsExpand: string[]
+liked_objects_idsExpand: string[]
+view_requested_idsExpand: string[]
+questions_idsExpand: string[]
+reaction_actionsExpand: any | null
+selected_object_idExpand: string | null
+primary_actionExpand: string | null
+obj1_idExpand: string | null
+obj2_idExpand: string | null
+obj3_idExpand: string | null
+reaction_clientExpand: string | null
+wants_viewing_idExpand: string | null
+interest_reasonExpand: string | null
+survey_status_label: string // read only
 }
 
 // =======================

@@ -35,5 +35,7 @@ export const config = {
     "/creator/:path*",
     "/admin/:path*",
     "/manager/:path*",
+    "/api/v1/:path*",
+    "/api/webhook/:path*"
   ],
 }
