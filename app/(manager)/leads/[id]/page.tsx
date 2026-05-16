@@ -33,12 +33,12 @@ const lead = {
 
 export default async function LeadFullDetails() {
   // Отримуємо конфіги для гарного відображення статусу та ролі
-  const status =
-    LEAD_STATUS_CONFIG[lead.status as keyof typeof LEAD_STATUS_CONFIG] ||
-    LEAD_STATUS_CONFIG.NEW
-  const role =
-    LEAD_ROLE_CONFIG[lead.role as keyof typeof LEAD_ROLE_CONFIG] ||
-    LEAD_ROLE_CONFIG.UNDEFINED
+  // const status =
+  //   LEAD_STATUS_CONFIG[lead.status as keyof typeof LEAD_STATUS_CONFIG] ||
+  //   LEAD_STATUS_CONFIG.NEW
+  // const role =
+  //   LEAD_ROLE_CONFIG[lead.role as keyof typeof LEAD_ROLE_CONFIG] ||
+  //   LEAD_ROLE_CONFIG.UNDEFINED
 
   return (
     <div className="space-y-6 p-6">
@@ -50,32 +50,33 @@ export default async function LeadFullDetails() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              {lead.firstName} {lead.lastName || ""}
+              {/* {lead.firstName} {lead.lastName || ""} */}
+              Якись Лід
             </h1>
             <p className="text-sm text-muted-foreground">ID: {lead.id}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* РОЛЬ */}
+        {/* <div className="flex items-center gap-3">
+          
           <div
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${role.css}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${role.dot}`} />
             {role.label.toUpperCase()}
           </div>
-          {/* СТАТУС */}
+         
           <div
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${status.css}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
             {status.label}
           </div>
-        </div>
+        </div> */}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* 1. КОНТАКТНА ІНФОРМАЦІЯ */}
+      {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
@@ -106,7 +107,7 @@ export default async function LeadFullDetails() {
           </CardContent>
         </Card>
 
-        {/* 2. ПАРАМЕТРИ ЗАПИТУ */}
+    
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
@@ -149,7 +150,6 @@ export default async function LeadFullDetails() {
           </CardContent>
         </Card>
 
-        {/* 3. ШІ АНАЛІЗ (На всю ширину) */}
         <Card className="border-primary/20 bg-slate-50/50 md:col-span-3">
           <CardHeader>
             <CardTitle className="text-md flex items-center gap-2 text-primary">
@@ -187,7 +187,7 @@ export default async function LeadFullDetails() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   )
 }
