@@ -144,7 +144,6 @@ export default function LeadsTable() {
         }
 
         const data = await res.json()
-        console.log(data)
 
         // Перевіряємо чи прийшов масив (залежить від структури відповіді твого беку)
         if (data) {

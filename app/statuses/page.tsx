@@ -10,42 +10,42 @@ import { Badge } from "@/components/ui/badge"
 import { LEAD_STATUS_CONFIG } from "@/lib/constants"
 
 // Мапимо іконки до статусів
-const STATUS_ICONS: Record<string, LucideIcon> = {
-  NEW: UserPlus,
-  ACTIVE: CheckCircle2,
-  COMPLETED: PackageCheck,
-  BANNED: Ban,
-}
+// const STATUS_ICONS: Record<string, LucideIcon> = {
+//   NEW: UserPlus,
+//   ACTIVE: CheckCircle2,
+//   COMPLETED: PackageCheck,
+//   BANNED: Ban,
+// }
 
-const statusesInfo = [
-  {
-    status: "NEW",
-    description: "Користувач щойно зареєструвався в боті або системі.",
-    action:
-      "Менеджер повинен зв'язатися протягом 15 хвилин для уточнення замовлення.",
-  },
-  {
-    status: "ACTIVE",
-    description:
-      "Клієнт у процесі вибору товару або обговорення схеми вишивки.",
-    action: "Допомога з вибором дизайну для подушок або одягу.",
-  },
-  {
-    status: "COMPLETED",
-    description: "Замовлення виконано, клієнт отримав свою схему чи товар.",
-    action: "Можна пропонувати участь у програмі лояльності Etno Shop.",
-  },
-  {
-    status: "BANNED",
-    description: "Користувач порушив правила або спамив у боті.",
-    action: "Обмеження доступу до LynxAI та всіх сервісів магазину.",
-  },
-]
+// const statusesInfo = [
+//   {
+//     status: "NEW",
+//     description: "Користувач щойно зареєструвався в боті або системі.",
+//     action:
+//       "Менеджер повинен зв'язатися протягом 15 хвилин для уточнення замовлення.",
+//   },
+//   {
+//     status: "ACTIVE",
+//     description:
+//       "Клієнт у процесі вибору товару або обговорення схеми вишивки.",
+//     action: "Допомога з вибором дизайну для подушок або одягу.",
+//   },
+//   {
+//     status: "COMPLETED",
+//     description: "Замовлення виконано, клієнт отримав свою схему чи товар.",
+//     action: "Можна пропонувати участь у програмі лояльності Etno Shop.",
+//   },
+//   {
+//     status: "BANNED",
+//     description: "Користувач порушив правила або спамив у боті.",
+//     action: "Обмеження доступу до LynxAI та всіх сервісів магазину.",
+//   },
+// ]
 
 export default function StatusesPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <div>
+      {/* <div>
         <h1 className="text-3xl font-bold tracking-tight">Статуси клієнтів</h1>
         <p className="text-muted-foreground">
           Життєвий цикл користувача в системі LynxAI.
@@ -98,7 +98,7 @@ export default function StatusesPage() {
             </Card>
           )
         })}
-      </div>
+      </div> */}
     </div>
   )
 }
