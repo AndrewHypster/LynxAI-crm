@@ -48,14 +48,14 @@ interface UniversalTableProps<T> {
     id: string
     key: string
     value: string
-    }) => void
-  
+  }) => void
+
   pagination?: {
     currentPage: number
     pageSize: number
     onPageChange: (page: number) => void
     onPageSizeChange?: (size: number) => void
-    totalCount?: number // якщо бекенд повертає загальну кількість
+    isNextDisabled:boolean
   }
 }
 
@@ -119,7 +119,6 @@ const BadgeDotCell = ({
   }) => {
   
   config = config[value[colKey]]
-  console.log(config);
   
 
   return (
@@ -278,6 +277,7 @@ export function UniversalTable<T extends BaseEntity>({
             </Button>
             <Button
               variant="outline"
+              disabled={pagination.isNextDisabled}
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage + 1)
               }
@@ -373,5 +373,36 @@ export function UniversalTable<T extends BaseEntity>({
         </Dialog>
       )}
     </>
+  )
+}
+
+export const EmptyTable = ({
+  page,
+  totalPages,
+  handlePageChange,
+}: {
+  page: number
+  totalPages: number
+  handlePageChange: (page: number) => void
+}) => {
+  return (
+    <div className="my-4 rounded-xl border-2 border-dashed border-red-200 bg-red-50 p-8 text-center">
+      <div className="mb-2 text-lg font-semibold text-red-500">
+        ⚠ Помилка навігації
+      </div>
+      <p className="text-sm text-gray-600">
+        Ви перейшли на сторінку{" "}
+        <span className="font-bold text-red-600">{page}</span>, але в базі даних
+        зараз доступно всього{" "}
+        <span className="font-semibold text-gray-900">{totalPages}</span>{" "}
+        сторінок.
+      </p>
+      <button
+        onClick={() => handlePageChange(1)}
+        className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-red-700"
+      >
+        Повернутися на 1 сторінку
+      </button>
+    </div>
   )
 }
