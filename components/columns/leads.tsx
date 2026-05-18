@@ -7,7 +7,11 @@ export const leadColumns: ColumnConfig<Lead>[] = [
     header: "Ім'я",
     key: "full_name",
     type: "text",
-    render: (lead) => <Link href={`/leads/${lead.id}`}><span className="font-bold">{lead.full_name}</span></Link>,
+    render: (lead) => (
+      <Link href={`/leads/${lead.id}`}>
+        <span className="font-bold">{lead.full_name || "Не вказано"}</span>
+      </Link>
+    ),
   },
   {
     header: "Телефон",
