@@ -1,6 +1,7 @@
 "use client"
 
 import { leadColumns } from "@/components/columns/leads"
+import { PageLoader } from "@/components/loading"
 import { EmptyTable, UniversalTable } from "@/components/table"
 import { Lead } from "@/lib/constants"
 import {
@@ -41,7 +42,10 @@ export default function LeadsTable() {
 
       try {
         const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}`)
-        if (!res.ok) throw new Error(`Помилка сервера: ${res.status}`)
+        console.log(res);
+        
+        if (!res.ok) throw new Error(`Помилка сервера: ${res.status};
+        }`)
 
         const responseData = await res.json()
         const fetchedLeads = responseData.data || []
@@ -71,6 +75,8 @@ export default function LeadsTable() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Ліди</h1>
       </div>
+
+      {isLoading && <PageLoader />}
 
       {!isLoading && leads.length === 0 && page > totalPages ? (
         <EmptyTable

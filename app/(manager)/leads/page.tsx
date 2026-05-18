@@ -1,8 +1,6 @@
 import { Suspense } from "react"
 import LeadsTable from "./leadsTable"
 
-
-// 1. Головний експорт сторінки стає просто тонкою обгорткою з Suspense
 export default function LeadsPage() {
   return (
     <Suspense

@@ -22,7 +22,7 @@ export function AppSidebar() {
   // 1. Якщо сесія ще вантажиться, не показуємо дефолтне меню
   if (status === "loading") {
     return (
-      <Sidebar collapsible="icon">
+      <Sidebar collapsible="icon" className="z-[99]">
         <SidebarContent>
         </SidebarContent>
       </Sidebar>
@@ -32,7 +32,7 @@ export function AppSidebar() {
   const userRole = session?.user?.role || "MANAGER" // Дефолтна роль для безпеки
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="z-[99]">
       <SidebarContent>
         {NAV_CONFIG.map((group) => {
           // Фільтруємо пункти всередині групи
@@ -65,43 +65,44 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          {session && <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          {session && (
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  >
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                      <User className="size-4" />
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {session?.user?.name || "Користувач"}
+                      </span>
+                      <span className="truncate text-xs">
+                        {session?.user?.role || "Role"}
+                      </span>
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <User className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {session?.user?.name || "Користувач"}
-                    </span>
-                    <span className="truncate text-xs">
-                      {session?.user?.role || "Role"}
-                    </span>
-                  </div>
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="bottom"
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuItem
-                  className="cursor-pointer text-destructive focus:text-destructive"
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                >
-                  <LogOut className="mr-2 size-4" />
-                  Вийти
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>}
-          
+                  <DropdownMenuItem
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                  >
+                    <LogOut className="mr-2 size-4" />
+                    Вийти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
