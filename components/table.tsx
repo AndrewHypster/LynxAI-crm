@@ -53,6 +53,7 @@ interface UniversalTableProps<T> {
   pagination?: {
     currentPage: number
     pageSize: number
+    pages: number
     onPageChange: (page: number) => void
     onPageSizeChange?: (size: number) => void
     isNextDisabled:boolean
@@ -264,61 +265,104 @@ export function UniversalTable<T extends BaseEntity>({
 
       {/* ПАНЕЛЬ ПАГІНАЦІЇ */}
       {pagination && (
-        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-800 dark:bg-gray-950">
-          <div className="flex flex-1 justify-between sm:hidden">
+        <div className="flex items-center justify-center rounded-b-xl border-t border-gray-200 bg-white p-4 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04] dark:backdrop-blur-md">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Стрілка Назад */}
             <Button
               variant="outline"
+              className="flex h-9 w-9 items-center justify-center border-gray-200 p-0 dark:border-white/[0.08]"
               disabled={pagination.currentPage === 1}
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage - 1)
               }
             >
-              Назад
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
             </Button>
+
+            {/* Розрахунок лінійки сторінок прямо в рендері */}
+            {Array.from({ length: pagination.pages }, (_, i) => i + 1)
+              .filter(
+                (p) =>
+                  p === 1 ||
+                  p === pagination.pages ||
+                  Math.abs(p - pagination.currentPage) <= 1
+              )
+              .map((p, idx, arr) => {
+                const showDots = idx > 0 && p - arr[idx - 1] > 1
+                const isCurrent = p === pagination.currentPage
+
+                return (
+                  <React.Fragment key={p}>
+                    {showDots && (
+                      <span className="flex h-9 w-8 items-center justify-center text-sm font-medium text-gray-400 dark:text-gray-500">
+                        •••
+                      </span>
+                    )}
+                    <Button
+                      variant={isCurrent ? "default" : "outline"}
+                      className={`h-9 min-w-[36px] px-2 text-sm font-medium transition-all ${
+                        isCurrent
+                          ? "text-white shadow-sm"
+                          : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-white/[0.08] dark:text-gray-300 dark:hover:bg-white/[0.02]"
+                      }`}
+                      style={
+                        isCurrent
+                          ? {
+                              backgroundColor: "#7C1DF2",
+                              borderColor: "#7C1DF2",
+                            }
+                          : {}
+                      }
+                      onClick={() => pagination.onPageChange(p)}
+                    >
+                      {p}
+                    </Button>
+                  </React.Fragment>
+                )
+              })}
+
+            {/* Стрілка Вперед */}
             <Button
               variant="outline"
+              className="flex h-9 w-9 items-center justify-center border-gray-200 p-0 dark:border-white/[0.08]"
               disabled={pagination.isNextDisabled}
               onClick={() =>
                 pagination.onPageChange(pagination.currentPage + 1)
               }
             >
-              Вперед
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </Button>
-          </div>
-          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                Поточна сторінка{" "}
-                <span className="font-medium">{pagination.currentPage}</span>
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={pagination.currentPage === 1}
-                onClick={() =>
-                  pagination.onPageChange(pagination.currentPage - 1)
-                }
-              >
-                Попередня
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                // Якщо бек не дає totalCount, блокуємо кнопку, якщо прийшло менше елементів, ніж pageSize
-                disabled={data.length < pagination.pageSize}
-                onClick={() =>
-                  pagination.onPageChange(pagination.currentPage + 1)
-                }
-              >
-                Наступна
-              </Button>
-            </div>
           </div>
         </div>
       )}
-
       {/* МОДАЛЬНЕ ВІКНО ЗМІНИ РОЛІ */}
       {modal && (
         <Dialog open={!!modal} onOpenChange={() => setModal(null)}>

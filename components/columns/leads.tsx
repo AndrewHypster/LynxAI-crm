@@ -1,12 +1,13 @@
 import { Lead, LEAD_ROLE_CONFIG, LEAD_STATUS_CONFIG } from "@/lib/constants"
 import { ColumnConfig } from "../table"
+import Link from "next/link"
 
 export const leadColumns: ColumnConfig<Lead>[] = [
   {
     header: "Ім'я",
     key: "full_name",
     type: "text",
-    render: (lead) => <span className="font-bold">{lead.full_name}</span>,
+    render: (lead) => <Link href={`/leads/${lead.id}`}><span className="font-bold">{lead.full_name}</span></Link>,
   },
   {
     header: "Телефон",

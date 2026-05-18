@@ -1,193 +1,283 @@
-import {
-  DollarSign,
-  MapPin,
-  BedDouble,
-  Sparkles,
-  CheckCircle2,
-  Home,
-  Phone,
-  Send,
-  User,
-} from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { LEAD_STATUS_CONFIG, LEAD_ROLE_CONFIG } from "@/lib/constants"
+"use client"
 
-const lead = {
-  id: "24",
-  firstName: "Ірина",
-  lastName: "Терещенко",
-  role: "BUYER",
-  status: "ACTIVE",
-  telegram: "ira_ter",
-  phone: "+380632221100",
-  budget: 1000,
-  intent: "RENT",
-  location: "Ternopil",
-  rooms: 4,
-  hasBenefits: true,
-  amenities: ["Паркінг", "Балкон"],
-  aiSummary:
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut, earum qui est soluta suscipit eveniet eum quos porro delectus veniam, commodi possimus illum maiores, minima culpa debitis provident dolor tempore labore id! Nobis dolorum a voluptates alias, hic dicta unde nisi harum ipsa, pariatur quam autem natus quo, nihil tempore culpa! Eum cumque voluptates id quaerat ipsum itaque distinctio ut nam animi dolore ea, ab necessitatibus optio corrupti at explicabo!",
-}
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { PageLoader } from "@/components/loading"
+import { LeadDetails } from "@/lib/constants"
+import Link from "next/link"
 
-export default async function LeadFullDetails() {
-  // Отримуємо конфіги для гарного відображення статусу та ролі
-  // const status =
-  //   LEAD_STATUS_CONFIG[lead.status as keyof typeof LEAD_STATUS_CONFIG] ||
-  //   LEAD_STATUS_CONFIG.NEW
-  // const role =
-  //   LEAD_ROLE_CONFIG[lead.role as keyof typeof LEAD_ROLE_CONFIG] ||
-  //   LEAD_ROLE_CONFIG.UNDEFINED
+export default function LeadDetailPage() {
+  const params = useParams()
+  const router = useRouter()
+  const id = params?.id as string
+
+  const [lead, setLead] = useState<LeadDetails | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+
+    const fetchLeadData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await fetch(`/api/v1/leads/${id}`)
+        if (!res.ok) throw new Error(`Помилка завантаження ліда: ${res.status}`)
+
+        const data = await res.json()
+        setLead(data)
+      } catch (err: any) {
+        console.error(err)
+        setError(err.message || "Сталася помилка")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLeadData()
+  }, [id])
+
+  if (loading) return <PageLoader />
+  if (error || !lead) {
+    return (
+      <div className="p-6">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+          {error || "Ліда не знайдено"}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* ХЕДЕР З ОСНОВНОЮ ІНФОЮ */}
-      <div className="flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border bg-slate-100 text-slate-600">
-            <User className="size-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {/* {lead.firstName} {lead.lastName || ""} */}
-              Якись Лід
-            </h1>
-            <p className="text-sm text-muted-foreground">ID: {lead.id}</p>
+    <div className="mx-auto min-h-screen max-w-7xl space-y-6 bg-gray-50 p-6 text-gray-900 transition-colors duration-200 dark:bg-transparent dark:text-gray-100">
+      {/* Хедер сторінки */}
+      <div className="flex items-center justify-between rounded-xl border-b border-gray-200 bg-white p-4 pb-4 shadow-sm dark:border-gray-800 dark:bg-white/[0.05]">
+        <div>
+          <button
+            onClick={() => router.push("/leads")}
+            className="mb-1 block text-xs font-semibold tracking-wider uppercase transition-colors hover:opacity-80"
+            style={{ color: "#a55dff" }}
+          >
+            ← назад до списку
+          </button>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {lead.full_name || "Без імені"}{" "}
+            <span className="font-normal text-gray-400 dark:text-gray-500">
+              #{lead.id}
+            </span>
+          </h1>
+        </div>
+        <div className="flex gap-2">
+          <span className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+            {lead.role_label}
+          </span>
+          <span
+            className="rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+            style={{ backgroundColor: "#7C1DF2" }}
+          >
+            {lead.status_label}
+          </span>
+        </div>
+      </div>
+
+      {/* Головна сітка блоків */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* БЛОК 1: Основні контакти */}
+        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.05]">
+          <h2 className="text-md border-b border-gray-100 pb-2 text-xs font-bold tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+            👤 Контактна інформація
+          </h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Телефон
+              </span>
+              <span className="font-medium">{lead.phone || "Не вказано"}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Telegram username
+              </span>
+              <span className="font-medium text-blue-600 dark:text-blue-400">
+                {lead.username ? (
+                  <Link href={`https://t.me/${lead.username}`} target="_blank">@{lead.username}</Link>
+                ) : (
+                  "Відсутній"
+                )}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Локація
+              </span>
+              <span className="font-medium">
+                {lead.is_ukraine ? "🇺🇦 Україна" : "🌐 Закордон"}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Пріоритет комунікації
+              </span>
+              <span className="font-medium uppercase">
+                {lead.preferred_comm || "Не визначено"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* <div className="flex items-center gap-3">
-          
-          <div
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${role.css}`}
-          >
-            <span className={`h-1.5 w-1.5 rounded-full ${role.dot}`} />
-            {role.label.toUpperCase()}
+        {/* БЛОК 2: Запит нерухомості & Бюджет */}
+        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.05]">
+          <h2 className="text-md border-b border-gray-100 pb-2 text-xs font-bold tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+            🏢 Параметри підбору
+          </h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Бюджет
+              </span>
+              <span className="text-lg font-bold" style={{ color: "#a55dff" }}>
+                {lead.budget ? `${lead.budget} $` : "Не вказано"}
+              </span>
+              {(lead.budget_min || lead.budget_max) && (
+                <span className="block text-xs text-gray-400 dark:text-gray-500">
+                  від {lead.budget_min}$ до {lead.budget_max}$
+                </span>
+              )}
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Тип об'єкта / Кімнат
+              </span>
+              <span className="font-medium">
+                {lead.property_type || "Квартира"} / {lead.rooms || "—"} к.
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Район
+              </span>
+              <span className="font-medium">
+                {lead.district || "Не вибрано"}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Готовність до єОселі
+              </span>
+              <span className="font-medium">
+                {lead.eoselia_readyExpand || "Ні / Невідомо"}
+              </span>
+            </div>
           </div>
-         
-          <div
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${status.css}`}
-          >
-            <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-            {status.label}
-          </div>
-        </div> */}
-      </div>
-
-      {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
-              Контакти
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="group flex items-center justify-between">
-              <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Send className="size-4 text-sky-500" /> Telegram
+          {lead.wishes && (
+            <div className="border-t border-gray-100 pt-2 text-sm dark:border-gray-800">
+              <span className="mb-1 block text-xs text-gray-400 dark:text-gray-500">
+                Побажання клієнта:
               </span>
-              <a
-                href={`https://t.me/${lead.telegram}`}
-                target="_blank"
-                className="text-sm font-medium text-blue-600 hover:underline"
-              >
-                @{lead.telegram}
-              </a>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="size-4 text-emerald-500" /> Телефон
-              </span>
-              <span className="text-sm font-medium">
-                {lead.phone || "Не вказано"}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-    
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-sm font-bold tracking-wider text-muted-foreground uppercase">
-              Деталі нерухомості
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex justify-between border-b pb-2">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="size-4" /> Бюджет
-                </span>
-                <span className="text-sm font-bold text-emerald-600">
-                  ${lead.budget?.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Home className="size-4" /> Тип
-                </span>
-                <span className="text-sm font-medium">
-                  {lead.intent === "BUY" ? "Купівля" : "Оренда"}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex justify-between border-b pb-2">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="size-4" /> Локація
-                </span>
-                <span className="text-sm font-medium">{lead.location}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BedDouble className="size-4" /> Кімнат
-                </span>
-                <span className="text-sm font-medium">{lead.rooms}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-primary/20 bg-slate-50/50 md:col-span-3">
-          <CardHeader>
-            <CardTitle className="text-md flex items-center gap-2 text-primary">
-              <Sparkles className="size-5" />
-              AI Резюме клієнта
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-700 italic">
-                {lead.aiSummary ||
-                  "Дані для аналізу відсутні. ШІ сформує опис після першої переписки."}
+              <p className="rounded-lg bg-gray-50 p-2.5 text-xs text-gray-700 italic dark:bg-gray-950 dark:text-gray-300">
+                {lead.wishes}
               </p>
             </div>
+          )}
+        </div>
 
-            <div className="mt-6 flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <CheckCircle2
-                  className={`size-4 ${lead.hasBenefits ? "text-blue-500" : "text-slate-300"}`}
-                />
-                Соціальні пільги:{" "}
-                <span className="font-bold">
-                  {lead.hasBenefits ? "ТАК" : "НІ"}
+        {/* БЛОК 3: Маркетинг & Таймлайн */}
+        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/[0.05]">
+          <h2 className="text-md border-b border-gray-100 pb-2 text-xs font-bold tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+            📊 Системні дані & Маркетинг
+          </h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Джерело (UTM Source)
+              </span>
+              <span className="mt-0.5 inline-block rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600 uppercase dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400">
+                {lead.utm_source || "organic"}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Кампанія
+              </span>
+              <span className="block max-w-[180px] truncate text-xs font-medium">
+                {lead.utm_campaign || "—"}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Дата створення
+              </span>
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                {new Date(lead.created_at).toLocaleString("uk-UA")}
+              </span>
+            </div>
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Остання активність
+              </span>
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                {lead.last_client_activity
+                  ? new Date(lead.last_client_activity).toLocaleString("uk-UA")
+                  : "—"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* БЛОК 4: AI Секція LynxAI */}
+        <div
+          className="space-y-4 rounded-xl border p-5 shadow-sm dark:bg-white/[0.05]"
+          style={{ borderColor: "#7C1DF2" }}
+        >
+          <div className="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
+            <h2
+              className="flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase"
+              style={{ color: "#a55dff" }}
+            >
+              ✨ Аналітика LynxAI
+            </h2>
+            {lead.ai_scoreExpand !== null && (
+              <div className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-xs font-bold shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <span className="text-gray-400">Score:</span>
+                <span style={{ color: "#a55dff" }}>
+                  {lead.ai_scoreExpand}/100
                 </span>
               </div>
-              {lead.amenities?.map((a: string) => (
-                <Badge
-                  key={a}
-                  variant="outline"
-                  className="bg-white text-[10px] tracking-tight uppercase"
-                >
-                  {a}
-                </Badge>
-              ))}
+            )}
+          </div>
+
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="block text-xs text-gray-400 dark:text-gray-500">
+                Температура клієнта (Warmth)
+              </span>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${(lead.warmth || 1) * 20}%`,
+                      backgroundColor: "#7C1DF2",
+                    }}
+                  />
+                </div>
+                <span className="text-xs font-bold">{lead.warmth || 0}/100</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div> */}
+
+            <div>
+              <span className="mb-1 block text-xs text-gray-400 dark:text-gray-500">
+                ШІ-Самарі розмови:
+              </span>
+              <div className="rounded-lg border border-gray-200 bg-white/80 p-3 text-xs leading-relaxed text-gray-700 shadow-inner dark:border-gray-800 dark:bg-gray-950/80 dark:text-gray-300">
+                {lead.ai_summaryExpand ||
+                  "Штучний інтелект ще не сформував резюме по цьому ліду."}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

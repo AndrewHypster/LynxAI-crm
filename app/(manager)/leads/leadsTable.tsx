@@ -22,7 +22,7 @@ export default function LeadsTable() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [leads, setLeads] = useState<Lead[]>([])
-  const leadsCache = useRef<{ [key: number]: { data: Lead[] } }>({})
+  const leadsCache = useRef<{ [key: number]: Lead[] }>({})
   const [totalPages, setTotalPages] = useState<number>(0)
 
   const handlePageChange = (newPage: number) => {
@@ -34,9 +34,11 @@ export default function LeadsTable() {
   useEffect(() => {
     const loadLeads = async () => {
       setIsLoading(true)
+      
       if (totalPages != 0 && page > totalPages) redirect("/404")
       if (leadsCache.current[page]) {
-        setLeads(leadsCache.current[page].data)
+        setLeads(leadsCache.current[page])
+         setIsLoading(false)
         return
       }
 
@@ -78,7 +80,7 @@ export default function LeadsTable() {
 
       {isLoading && <PageLoader />}
 
-      {!isLoading && leads.length === 0 && page > totalPages ? (
+      {!isLoading && leads && page > totalPages ? (
         <EmptyTable
           page={page}
           totalPages={totalPages}
@@ -97,13 +99,14 @@ export default function LeadsTable() {
               )
 
               // Оновлюємо кеш для поточної сторінки, щоб там лежали актуальні змінені дані
-              leadsCache.current[page].data = updated
+              leadsCache.current[page] = updated
               return updated
             })
           }
           pagination={{
             currentPage: page,
             pageSize: limit,
+            pages: totalPages,
             onPageChange: handlePageChange,
             isNextDisabled: page >= totalPages,
           }}
