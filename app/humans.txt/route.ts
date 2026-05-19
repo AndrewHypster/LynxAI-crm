@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const textContent = `<a href="https://lynx-ai-rouge.vercel.app/" target="_blank" style="font-size: 1.75rem; text-decoration: none; color: inherit">
+  const textContent = `<a href="https://lynx-ai-rouge.vercel.app/" target="_blank" style="font-size: 1.75rem; text-decoration: none; color: inherit; display: block;">
            !7                                                      ^7           
            :BY.                                                  .?B?           
             JBG?.                                              .?GBP.           
@@ -96,10 +96,6 @@ BBBBBBBBBBBP   PGBBG:     5BB5     .BBB7  JBBB7   PBBG   GBBY         5BBG  7BBB
     main, a {
       width: fit-content;
       margin: 0 auto;
-    }
-
-    a {
-      display: block;
     }
 
     pre {
