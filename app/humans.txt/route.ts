@@ -93,9 +93,13 @@ BBBBBBBBBBBP   PGBBG:     5BB5     .BBB7  JBBB7   PBBG   GBBY         5BBG  7BBB
       padding: 20px;
     }
     
-    main {
+    main, a {
       width: fit-content;
       margin: 0 auto;
+    }
+
+    a {
+      display: block;
     }
 
     pre {
