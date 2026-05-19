@@ -47,25 +47,26 @@ BBBBBBBBBBBP   PGBBG:     5BB5     .BBB7  JBBB7   PBBG   GBBY         5BBG  7BBB
 
 
 /* PROJECT */
-   • Title:        ETNO SHOP (Borshchiv Embroidery Platform)
+   • Title:        LynxAI crm
    • Year:         2026
    • Status:       Production / Active
               
 /* FOUNDER / VISION */
-   • Idea & Product Owner:  [Ім'я Проджекта / Засновника]
-     Contact:               [Telegram або Email засновника]
+   • Idea & Product Owner:  Vlad Filonov
+     Telegram:              <a href="https://t.me/yupsircom" target="_blank">@yupsircom<a/>
 
 /* DEVELOPMENT TEAM */
-   • Frontend Developer:     Andrii
+   • Frontend Developer:     Andrii Hrechukh
      Portfolio:              [Посилання]
-     Contact:                [Посилання]
+     Telegram:               <a href="https://t.me/Monoliz1503" target="_blank">@Monoliz1503<a/>
 
-   • Backend Developer:      [Ім'я колеги]
+   • Backend Developer:      Andriy Pastukh
      Portfolio:              [Посилання]
-     Contact:                [Посилання]
+     Telegram:               <a href="https://t.me/BiterNight" target="_blank">@@BiterNight<a/>
 
    • UI/UX Designer:         [Ім'я дизайнера]
      Portfolio:              [Посилання]
+     Telegram:               [Посилання]
 
 =================================================================================
                                 Made in Ukraine                                  
