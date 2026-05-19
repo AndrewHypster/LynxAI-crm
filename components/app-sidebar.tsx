@@ -22,7 +22,7 @@ export function AppSidebar() {
   // 1. Якщо сесія ще вантажиться, не показуємо дефолтне меню
   if (status === "loading") {
     return (
-      <Sidebar collapsible="icon" className="z-[99]">
+      <Sidebar collapsible="icon" className="z-[100]">
         <SidebarContent>
         </SidebarContent>
       </Sidebar>
@@ -87,7 +87,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  className="z-[101] w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                   side="bottom"
                   align="end"
                   sideOffset={4}
