@@ -32,7 +32,7 @@ export function AppSidebar() {
   const userRole = session?.user?.role || "MANAGER" // Дефолтна роль для безпеки
 
   return (
-    <Sidebar collapsible="icon" className="z-[99]">
+    <Sidebar collapsible="icon" className="z-[100]">
       <SidebarContent>
         {NAV_CONFIG.map((group) => {
           // Фільтруємо пункти всередині групи

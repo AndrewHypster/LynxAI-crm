@@ -142,7 +142,7 @@ export const LEAD_STATUS_CONFIG = {
     css: "bg-orange-50 text-orange-700 border-orange-200",
   },
   [LEAD_STATUSES.lost]: {
-    label: "ЗАБЛОКОВАНО",
+    label: "ВТРАЧЕНИЙ",
     dot: "bg-red-500",
     css: "bg-red-50 text-red-600 border-red-200",
   },
@@ -300,6 +300,29 @@ reaction_clientExpand: string | null
 wants_viewing_idExpand: string | null
 interest_reasonExpand: string | null
 survey_status_label: string // read only
+}
+
+// Список полів, які дозволено оновлювати (Whitelist із документації)
+export const LEAD_ALLOWED_PATCH_FIELDS: Record<
+  string,
+  { type: "string" | "number" | "array"; enum?: readonly string[] }
+> = {
+  full_name: { type: "string" },
+  phone: { type: "string" },
+  phone_normalized: { type: "string" },
+  stage: { type: "string" },
+  contact_status: { type: "string" },
+  priority: { type: "string" },
+  stage_719: { type: "string" },
+  readiness_for_selection: { type: "string" },
+  main_request: { type: "string" },
+  interest_reason: { type: "string" },
+  comment: { type: "string" },
+  manager_id: { type: "number" },
+  matched_objects_ids: { type: "array" },
+  liked_objects_ids: { type: "array" },
+  role: { type: "string", enum: Object.values(LEAD_ROLES) },
+  status: { type: "string", enum: Object.values(LEAD_STATUSES) },
 }
 
 // =======================

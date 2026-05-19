@@ -90,19 +90,50 @@ export default function LeadsTable() {
         <UniversalTable<Lead>
           data={leads as Lead[]}
           columns={leadColumns}
-          onChange={({ id, key, value }) =>
-            setLeads((prev) => {
-              const updated = prev.map((item) =>
-                String(item.id) === String(id)
-                  ? { ...item, [key]: value }
-                  : item
-              )
+          onChange={async ({ id, key, value }) => {
+            // 1. Формуємо тіло запиту динамічно: { [key]: value }
+            // Наприклад, якщо міняємо роль: { role: "partner" }
+            const requestBody = { [key]: value }
 
-              // Оновлюємо кеш для поточної сторінки, щоб там лежали актуальні змінені дані
-              leadsCache.current[page] = updated
-              return updated
-            })
-          }
+            try {
+              // 2. Шлемо запит на твій новий захищений API-роут
+              const res = await fetch(`/api/v1/leads/${id}`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody),
+              })
+
+              const data = await res.json()
+
+              // 3. Якщо наш бекенд (з валідацією Zod/Схемою) повернув помилку (наприклад, 400 Bad Request)
+              if (!res.ok) {
+                throw new Error(
+                  data.error || "Не вдалося оновити дані на сервері"
+                )
+              }
+
+              // 4. ТІЛЬКИ ЯКЩО СЕРВЕР ПОВЕРНУВ 200 ОК — оновлюємо стейт і кеш
+              setLeads((prev) => {
+                const updated = prev.map((item) =>
+                  String(item.id) === String(id)
+                    ? { ...item, ...data } // Бекенд повертає оновлений об'єкт, мержимо його
+                    : item
+                )
+
+                leadsCache.current[page] = updated
+                return updated
+              })
+
+              // Тут можна тригернути якийсь красивий Toast про успіх
+              // toast.success("Зміни збережено")
+            } catch (error: any) {
+              console.error("Помилка під час PATCH запиту:", error)
+              // Тут обов'язково показуємо юзеру помилку валідації або авторизації
+              alert(`Помилка оновлення: ${error.message}`)
+            }
+          }}
           pagination={{
             currentPage: page,
             pageSize: limit,
