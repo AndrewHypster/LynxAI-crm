@@ -19,8 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  console.log();
-  
+
   return (
     <html
       lang="en"

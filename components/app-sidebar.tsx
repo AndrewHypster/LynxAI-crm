@@ -15,9 +15,21 @@ import { NAV_CONFIG } from "@/config/navigation"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { LogOut, User } from "lucide-react"
+import { useEffect } from "react"
 
 export function AppSidebar() {
   const { data: session, status } = useSession()
+
+   useEffect(() => {
+     console.log(
+       `%cDEV TEAM %c👇\n%c${window.location.origin}/humans.txt`,
+       // Стиль для тексту "Команда розробників"
+       "color: #cbd5e1; font-size: 24px; font-weight: bold; font-family: monospace;",
+       "font-size: 18px",
+       // Стиль для клікабельного лінка
+       "color: #7C1DF2; font-size: 14px; font-weight: bold; text-decoration: none; font-family: monospace;"
+     )
+   }, [])
 
   // 1. Якщо сесія ще вантажиться, не показуємо дефолтне меню
   if (status === "loading") {
