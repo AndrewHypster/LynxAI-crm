@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const textContent = `<a href="https://lynx-ai-rouge.vercel.app/" target="_blank" style="text-decoration: none; color: inherit">
+  const textContent = `<a href="https://lynx-ai-rouge.vercel.app/" target="_blank" style="font-size: 1.75rem; text-decoration: none; color: inherit">
            !7                                                      ^7           
            :BY.                                                  .?B?           
             JBG?.                                              .?GBP.           
@@ -45,54 +45,77 @@ BBBBBBBBBBBP   PGBBG:     5BB5     .BBB7  JBBB7   PBBG   GBBY         5BBG  7BBB
             BBBP?                                                               
 <a/>
 
-
+<p style="font-size: 3.5rem">
 /* PROJECT */
-   • Title:        LynxAI crm
-   • Year:         2026
-   • Status:       Production / Active
+  • Title:        LynxAI crm
+  • Year:         2026
+  • Status:       Production / Active
               
 /* FOUNDER / VISION */
-   • Idea & Product Owner:  Vlad Filonov
-     Telegram:              <a href="https://t.me/yupsircom" target="_blank">@yupsircom<a/>
+  • Idea & Product Owner: Vlad Filonov
+    Telegram:             <a href="https://t.me/yupsircom" target="_blank">@yupsircom<a/>
 
 /* DEVELOPMENT TEAM */
-   • Frontend Developer:     Andrii Hrechukh
-     Portfolio:              [Посилання]
-     Telegram:               <a href="https://t.me/Monoliz1503" target="_blank">@Monoliz1503<a/>
+  • Frontend Developer:   Andrii Hrechukh
+    Portfolio:            [Посилання]
+    Telegram:             <a href="https://t.me/Monoliz1503" target="_blank">@Monoliz1503<a/>
 
-   • Backend Developer:      Andriy Pastukh
-     Portfolio:              [Посилання]
-     Telegram:               <a href="https://t.me/BiterNight" target="_blank">@@BiterNight<a/>
+  • Backend Developer:    Andriy Pastukh
+    Portfolio:            [Посилання]
+    Telegram:             <a href="https://t.me/BiterNight" target="_blank">@@BiterNight<a/>
 
-   • UI/UX Designer:         [Ім'я дизайнера]
-     Portfolio:              [Посилання]
-     Telegram:               [Посилання]
+  • UI/UX Designer:       [Ім'я дизайнера]
+    Portfolio:            [Посилання]
+    Telegram:             [Посилання]
 
-=================================================================================
-                                Made in Ukraine                                  
-=================================================================================`
+==========================================
+              Made in Ukraine
+==========================================<p/>`
 
   // Повертаємо текст, але обгортаємо його в мінімальний HTML, який браузер з'їсть
   // і пофарбує в темний колір, якщо у юзера ввімкнена темна тема в системі
   const htmlWrapper = `<!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>humans.txt</title>
   <style>
     :root { color-scheme: dark; }
-    * {margin: 0; padding: 0;}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html { font-size: 6px; }
+    
     body { 
-      background: #0f172a; color: #cbd5e1; 
-      font-family: monospace; white-space: pre; padding: 20px;
+      background: #0f172a; 
+      color: #cbd5e1;
+      font-family: monospace; 
+      padding: 20px;
     }
+    
     main {
       width: fit-content;
       margin: 0 auto;
     }
+
+    pre {
+      font-size: 1rem;
+      line-height: 1.3;
+      font-family: monospace;
+      white-space: pre;
+    }
+
+    /* МЕДІА-ЗАПИТ: Якщо ширина менша за 768px */
+    @media screen and (max-width: 768px) {
+      body { padding: 10px; }
+      html { font-size: 1vw !important; }
+    }
   </style>
 </head>
 <body>
-  <main>${textContent}<main/>
+  <main>
+    <pre>${textContent}</pre>
+  </main>
 </body>
 </html>`
 
