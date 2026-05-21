@@ -1,0 +1,279 @@
+1. Системні дані та Мета (System & Meta)
+Усе, що стосується ідентифікації запису в базі та базових системних прапорців.
+
+id: number
+user_id: number
+manager_id: number | null
+shift_id: number | null
+created_at: string
+updated_at: string
+deleted_at: string | null
+is_testExpand: boolean | null
+raw_dataExpand: any | null
+
+2. Контактні дані та Комунікація (Client Profile & Communication)
+Дані для зв'язку з клієнтом, географія номера та часові пояси.
+
+full_name: string | null
+phone: string | null
+phone_normalized: string | null
+phone_location: string | null
+is_ukraine: boolean | null
+telegram_id: number | null
+username: string | null
+messengers: string | null
+preferred_comm: string | null
+client_timezone: string | null
+
+3. Статус та Управління Пайплайном (Pipeline & Workflow Status)
+Поточний стан ліда в лінійці продажів, пріоритети та відповідальні дедлайни.
+
+status: LeadStatuses | string
+status_label: string // read only
+role: LeadRole | string
+role_label: string   // read only
+stage: string | null
+result: string | null
+contact_status: string | null
+priority: string | null
+action_priority: string | null
+warmth: number | null
+assigned_at: string | null
+taken_in_work_at: string | null
+snooze_until: string | null
+next_step_date: string | null
+expected_closing_date: string | null
+closure_date: string | null
+
+4. Метрики SLA та Ефективність (SLA & Performance Metrics)
+Дані для аналітики швидкості роботи менеджерів із цим лідом.
+
+first_response_time: number | null
+reassigned_count: number | null
+contact_attempts: number | null
+night_lead: boolean | null
+repeat_clientExpand: boolean | null
+repeat_countExpand: number | null
+first_contactExpand: boolean | null
+speed_to_leadExpand: number | null
+sla_breachExpand: boolean | null
+
+5. Потреба: Параметри Нерухомості (Property Requirements)
+Що саме шукає клієнт (якщо це покупець/орендар).
+
+property_type: string | null
+property_name: string | null
+district: string | null
+rooms: string | null
+floor: string | null
+floor_info: string | null
+area: string | null
+wishes: string | null
+repair: string | null
+purpose: string | null
+format: string | null
+main_requestExpand: string | null
+
+6. Фінансовий Профіль (Financials & Budget)
+Бюджети, доходи, формати оплати та розрахунки розтермінування.
+
+budget: string | null
+budget_min: string | null
+budget_max: string | null
+expected_price: string | null
+income: string | null
+down_payment: string | null
+monthly_payment: string | null
+calculated_payment: string | null
+family_income: string | null
+deal_value: string | null
+surcharge: string | null
+finance_format: string | null
+
+7. Маркетинг та Атрибуція (Marketing & Attribution)
+Звідки прийшов лід (трекінг трафіку).
+
+contact_source: string | null
+utm_source: string | null
+utm_medium: string | null
+utm_campaign: string | null
+utm_term: string | null
+utm_content: string | null
+click_id: string | null
+
+8. Специфічні Сценарії (Sub-Funnels / Verticals)
+Поля, які активуються тільки залежно від типу ліда (ВПО/Пільговики, Продавці, Партнери, Оцінка).
+
+Державні програми та Соціалка (єОселя / Пільги):
+eoselia_readyExpand: string | null
+eoselia_detailsExpand: any | null
+social_statusExpand: string | null
+social_has_housingExpand: string | null
+social_received_compExpand: string | null
+social_on_queueExpand: string | null
+social_recommendationExpand: string | null
+benefit_categoryExpand: string | null
+accessibilityExpand: string | null
+
+Продаж власної нерухомості (Сценарій Продавця):
+has_propertyExpand: boolean | null
+total_area_existingExpand: string | null
+existing_areaExpand: string | null
+selling_currentExpand: boolean | null
+building_statusExpand: string | null
+ownership_typeExpand: string | null
+seller_buy_roomsExpand: string | null
+seller_buy_districtExpand: string | null
+seller_buy_budgetExpand: string | null
+seller_buy_surchargeExpand: string | null
+seller_buy_typeExpand: string | null
+post_sale_planExpand: string | null
+documents_readyExpand: boolean | null
+counter_purchaseExpand: boolean | null
+
+Партнерська програма (Агенції / Ріелтори):
+partnership_typeExpand: string | null
+agency_nameExpand: string | null
+partner_flagExpand: boolean | null
+partner_sourceExpand: string | null
+partner_formatExpand: string | null
+partner_client_infoExpand: string | null
+partner_rewardExpand: string | null
+partner_statusExpand: string | null
+
+Послуга Оцінки (Valuation):
+val_addressExpand: string | null
+val_reasonExpand: string | null
+valuation_typeExpand: string | null
+valuation_repairExpand: string | null
+valuation_furnitureExpand: string | null
+
+9. Кваліфікація, Опитування та Автоматизація (Surveys & Automation)
+Статуси проходження чат-ботів, квізів та скриптів.
+
+readiness_for_selection: string | null
+readiness_for_selectionExpand: string | null
+interest_reason: string | null
+interest_reasonExpand: string | null
+family_members: string | null
+is_for_clientExpand: boolean | null
+scenarioExpand: string | null
+scenario_idExpand: string | null
+scenario_typeExpand: string | null
+stage_719Expand: string | null
+funnel_nameExpand: string | null
+survey_status: string | null
+survey_status_label: string // read only
+survey_progress: string | null
+qualification_status: string | null
+
+10. Взаємодія з Об'єктами (Client Engagement & Matches)
+Підбірки, перегляди та фідбек щодо конкретних об'єктів нерухомості.
+
+variants_foundExpand: number | null
+variants_sentExpand: boolean | null
+selection_modeExpand: string | null
+showing_countExpand: number | null
+matched_objects_idsExpand: string[]
+liked_objects_idsExpand: string[]
+view_requested_idsExpand: string[]
+questions_idsExpand: string[]
+reaction_actionsExpand: any | null
+selected_object_idExpand: string | null
+primary_actionExpand: string | null
+obj1_idExpand: string | null
+obj2_idExpand: string | null
+obj3_idExpand: string | null
+reaction_clientExpand: string | null
+wants_viewing_idExpand: string | null
+
+11. ШІ Аналітика (AI Intelligence)
+Робота нейромережі з лідом (скоринг, самарі созвонів/чатів).
+
+ai_scoreExpand: number | null
+ai_summaryExpand: string | null
+
+12. Інтеграція з Notion (Notion Sync)
+
+notion_page_idExpand: string | null
+notion_urlExpand: string | null
+notion_sync_statusExpand: string | null
+notion_synced_atExpand: string | null
+lead_status_notionExpand: string | null
+
+13. Закриття, Фідбек та Відмови (Outcomes & Loss Reasons)
+Причини архівації ліда, нотатки про відмову або коментарі після опитування.
+
+commentExpand: string | null
+status_notesExpand: string | null
+feedbackExpand: string | null
+loss_reasonExpand: string | null
+reason_urgentExpand: string | null
+reason_refusalExpand: string | null
+last_client_activity: string | null
+last_followup_at: string | null
+last_stepExpand: string | null
+followup_levelExpand: number | null
+is_reminder_sentExpand: boolean | null
+post_survey_commentExpand: string | null
+
+
+
+
+
+🔥 ПРІОРИТЕТ 1: Першочерговий екран (Те, що менеджер бачить у перші 2 секунди)
+1. Контактні дані та Комунікація
+
+Чому: База. Ім'я, телефон, часовий пояс і зручний месенджер. Без цього робота взагалі не починається.
+
+2. Статус та Управління Пайплайном
+
+Чому: Операційка. Менеджер має бачити: який статус, який пріоритет, коли наступний крок (next_step_date) і до коли лід відкладено (snooze_until). Це його тайм-менеджмент.
+
+3. ШІ Аналітика (AI Intelligence)
+
+Чому: Сучасний Senior-чіткод. Коротке самарі від ШІ (ai_summary та ai_score) має виводитися на самому верху картки. Менеджер за 3 секунди читає стислий висновок нейромережі з попередніх розмов, замість того щоб гортати історію логів за три місяці.
+
+⚡ ПРІОРИТЕТ 2: Робочий контекст (Суть запиту та гроші)
+4. Потреба: Параметри Нерухомості
+
+Чому: Критерії підбору. Кількість кімнат, площа, район, ремонт. Це те, навколо чого будується вся розмова.
+
+5. Фінансовий Профіль (Budget)
+
+Чому: Кваліфікація баблом. Максимальний бюджет, перший внесок, формат фінансування. Якщо у клієнта немає грошей або його очікування неадекватні, менеджер не витрачає на нього час.
+
+6. Взаємодія з Об'єктами (Клієнтський досвід)
+
+Чому: Інструмент продажу. Що менеджер уже скинув, що клієнт лайкнув, а куди попросив перегляд (view_requested_ids). Це тригер для наступної дії.
+
+🔎 ПРІОРИТЕТ 3: Історія та Специфіка (Потрібно під час розмови)
+7. Закриття, Фідбек та Нотатки
+
+Чому: Контекст взаємин. Коментарі, нотатки про статус, причини відмов, якщо це повторний лід. Тут лежить історія "болю" клієнта.
+
+8. Специфічні Сценарії (Вертикалі: єОселя / Продавці / Партнери)
+
+Чому: Контекстні дані. Цей блок має рендеритися динамічно (як окрема таба). Якщо це покупець під єОселю — показуємо соціалку. Якщо це продавець — показуємо його об'єкт на продаж. Для інших лідів ця група просто займає місце на екрані.
+
+9. Кваліфікація та Опитування (Дані з ботів)
+
+Чому: Первинний зріз. Звідки лід почав (результати квізу чи чат-бота), прогрес опитування. Потрібно переважно на етапі "холодного" розбору ліда.
+
+📊 ПРІОРИТЕТ 4: Контроль та Аналітика (Потрібно Тимліду або для ретроспективи)
+10. Метрики SLA та Ефективність
+
+Чому: Контроль хвостів. Кількість спроб зв'язку, протерміновані дедлайни. Менеджеру це потрібно, щоб його не "взув" керівник, а керівнику — щоб бачити пройоми по SLA.
+
+11. Маркетинг та Атрибуція (UTM)
+
+Чому: Джерело ліда. Менеджеру в 95% випадків байдуже, яка там utm_campaign чи click_id. Ця інформація потрібна раз на місяць для аналітики або маркетологам. Вона має лежати в самому низу.
+
+⚙️ ПРІОРИТЕТ 5: Технічне сміття (Менеджеру взагалі не показувати)
+12. Інтеграція з Notion
+
+Чому: Чисто технічний лог синхронізації (notion_sync_status). Менеджеру це знання ніяк не допоможе продати квартиру. ХОВАЄМО.
+
+13. Системні дані та Мета
+
+Чому: ID запису, user_id, shift_id, raw_data. Потрібно виключно розробникам для дебагу або адмінам. Юзерам (менеджерам) це бачити шкідливо, щоб не мозолило очі.

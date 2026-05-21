@@ -307,22 +307,22 @@ export const LEAD_ALLOWED_PATCH_FIELDS: Record<
   string,
   { type: "string" | "number" | "array"; enum?: readonly string[] }
 > = {
-  full_name: { type: "string" },
-  phone: { type: "string" },
-  phone_normalized: { type: "string" },
-  stage: { type: "string" },
-  contact_status: { type: "string" },
-  priority: { type: "string" },
-  stage_719: { type: "string" },
-  readiness_for_selection: { type: "string" },
-  main_request: { type: "string" },
-  interest_reason: { type: "string" },
-  comment: { type: "string" },
-  manager_id: { type: "number" },
-  matched_objects_ids: { type: "array" },
-  liked_objects_ids: { type: "array" },
-  role: { type: "string", enum: Object.values(LEAD_ROLES) },
-  status: { type: "string", enum: Object.values(LEAD_STATUSES) },
+  full_name: { type: "string" }, // повне імя
+  phone: { type: "string" }, // Телефон
+  phone_normalized: { type: "string" }, // Ідеальний телефон
+  status: { type: "string", enum: Object.values(LEAD_STATUSES) }, // статус (new, active, deal, lost)
+  role: { type: "string", enum: Object.values(LEAD_ROLES) }, // роль (buyer, seller, partner)
+  stage: { type: "string" }, // етап воронки
+  contact_status: { type: "string" }, // статус контакту
+  priority: { type: "string" }, // пріоритет
+  stage_719: { type: "string" }, // Оновити стадію 719
+  readiness_for_selection: { type: "string" }, // готовність до підбору
+  main_request: { type: "string" }, // основний запит
+  interest_reason: { type: "string" }, // Причина зацікавленості
+  comment: { type: "string" }, // Додати коментар
+  manager_id: { type: "number" }, // Передати лід менеджеру
+  matched_objects_ids: { type: "array" }, // Оновити список підібраних об'єктів
+  liked_objects_ids: { type: "array" }, // Оновити список вподобаних
 }
 
 // =======================

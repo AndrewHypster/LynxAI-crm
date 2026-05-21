@@ -62,7 +62,7 @@ BBBBBBBBBBBP   PGBBG:     5BB5     .BBB7  JBBB7   PBBG   GBBY         5BBG  7BBB
 
   • Backend Developer:    Andriy Pastukh
     Portfolio:            [Посилання]
-    Telegram:             <a href="https://t.me/BiterNight" target="_blank">@@BiterNight<a/>
+    Telegram:             <a href="https://t.me/BiterNight" target="_blank">@BiterNight<a/>
 
   • UI/UX Designer:       [Ім'я дизайнера]
     Portfolio:            [Посилання]

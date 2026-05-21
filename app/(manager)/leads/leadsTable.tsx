@@ -121,7 +121,7 @@ export default function LeadsTable() {
                     ? { ...item, ...data } // Бекенд повертає оновлений об'єкт, мержимо його
                     : item
                 )
-
+                
                 leadsCache.current[page] = updated
                 return updated
               })
