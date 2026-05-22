@@ -6,9 +6,83 @@ import { PageLoader } from "@/components/loading"
 import {
   LEAD_ROLE_CONFIG,
   LEAD_STATUS_CONFIG,
+  LEAD_STATUSES,
   LeadDetails,
 } from "@/lib/constants"
 import Link from "next/link"
+
+interface EditableFieldProps {
+  isEditing: boolean // Чи активний глобальний режим редагування
+  name: string // Унікальне ім'я поля в базі даних (напр. 'budget')
+  value: any // Поточне значення (вже злите з чернетки)
+  onChange: (name: string, value: any) => void // Функція оновлення чернетки
+  type?: "text" | "select" | "textarea" // Тип інпута
+  options?: { value: string; label: string }[] // Варіанти для селекту
+  inputClassName?: string // Можливість кастомізувати інпут зовні
+  children: React.ReactNode // Твій оригінальний read-only дизайн поля
+}
+
+export const EditableField: React.FC<EditableFieldProps> = ({
+  isEditing,
+  name,
+  value,
+  onChange,
+  type = "text",
+  options = [],
+  inputClassName = "",
+  children,
+}) => {
+  // Якщо режим редагування вимкнено — просто рендеримо твій готовий красивий UI
+  if (!isEditing) {
+    return <>{children}</>
+  }
+
+  // Спільні стилі для темної теми Slate
+  const baseInputStyle = `border border-slate-800 rounded px-2.5 py-1 focus:border-indigo-500 focus:outline-none transition ${inputClassName}`
+
+  // Рендеримо відповідне поле в режимі редагування
+  switch (type) {
+    case "textarea":
+      return (
+        <textarea
+          value={value ?? ""}
+          onChange={(e) => onChange(name, e.target.value)}
+          rows={3}
+          className={baseInputStyle}
+        />
+      )
+
+    case "select":
+      return (
+        <select
+          value={value ?? ""}
+          onChange={(e) => onChange(name, e.target.value)}
+          className={baseInputStyle}
+        >
+          {options.map((opt) => (
+            <option
+              key={opt.value}
+              value={opt.value}
+              className="bg-slate-950 text-slate-200"
+            >
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      )
+
+    case "text":
+    default:
+      return (
+        <input
+          type="text"
+          value={value ?? ""}
+          onChange={(e) => onChange(name, e.target.value)}
+          className={baseInputStyle}
+        />
+      )
+  }
+}
 
 export default function LeadDetailPage() {
   const params = useParams()
@@ -16,10 +90,15 @@ export default function LeadDetailPage() {
   const id = params?.id as string
   type VerticalTab = "eoselia" | "seller" | "partner" | "valuation"
 
-  const [lead, setLead] = useState<LeadDetails | null>(null)
+  const [leadData, setLeadData] = useState<LeadDetails | null>(null)
+  const [draftChanges, setDraftChanges] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<VerticalTab>("eoselia")
+  const [isEditing, setIsEditing] = useState(false)
+
+  // Об'єкт, який бачить менеджер (оригінал + накладені поверх зміни з інпутів)
+  const lead = { ...leadData, ...draftChanges }
 
   // Беремо ліда з бази
   useEffect(() => {
@@ -33,7 +112,7 @@ export default function LeadDetailPage() {
         if (!res.ok) throw new Error(`Помилка завантаження ліда: ${res.status}`)
 
         const data = await res.json()
-        setLead(data)
+        setLeadData(data)
       } catch (err: any) {
         console.error(err)
         setError(err.message || "Сталася помилка")
@@ -47,22 +126,22 @@ export default function LeadDetailPage() {
 
   // Авто-вибір активної таби на основі наявних даних ліда
   useEffect(() => {
-    if (lead?.has_propertyExpand || lead?.seller_buy_budgetExpand) {
+    if (leadData?.has_propertyExpand || leadData?.seller_buy_budgetExpand) {
       setActiveTab("seller")
-    } else if (lead?.agency_nameExpand || lead?.partner_flagExpand) {
+    } else if (leadData?.agency_nameExpand || leadData?.partner_flagExpand) {
       setActiveTab("partner")
-    } else if (lead?.val_addressExpand) {
+    } else if (leadData?.val_addressExpand) {
       setActiveTab("valuation")
     } else {
       setActiveTab("eoselia")
     }
-  }, [lead])
+  }, [leadData])
 
   const renderVal = (val: any, fallback = "—") =>
     val !== null && val !== undefined && val !== "" ? val : fallback
 
   // Визначення кольору температури ліда (warmth)
-  const getWarmthColor = (score: number | null) => {
+  const getWarmthColor = (score: number | undefined) => {
     if (!score) return "bg-slate-700 text-slate-300"
     if (score >= 70)
       return "bg-rose-500/20 text-rose-400 border border-rose-500/30" // Гарячий
@@ -72,7 +151,7 @@ export default function LeadDetailPage() {
   }
 
   // Форматування дат для читабельності менеджером
-  const formatDate = (dateStr: string | null) => {
+  const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return null
     try {
       const date = new Date(dateStr)
@@ -89,7 +168,7 @@ export default function LeadDetailPage() {
   }
 
   // Хелпер для масивів ідентифікаторів об'єктів
-  const renderIdBadges = (ids: string[] | null, colorClass: string) => {
+  const renderIdBadges = (ids: string[] | undefined, colorClass: string) => {
     if (!ids || ids.length === 0)
       return <span className="text-xs text-slate-600">Немає</span>
     return (
@@ -106,6 +185,72 @@ export default function LeadDetailPage() {
     )
   }
 
+  // Функція зміни поля в чернетці
+  const handleFieldChange = (name: string, value: any) => {
+    setDraftChanges((prev) => ({ ...prev, [name]: value }))
+  }
+
+  // Скасування змін
+  const handleCancel = () => {
+    setDraftChanges({})
+    setIsEditing(false)
+  }
+
+  // Збереження всього пакету змін однією кнопкою
+  const handleSave = async () => {
+    // 1. Якщо чернетка порожня — просто закриваємо режим редагування
+    if (Object.keys(draftChanges).length === 0) {
+      setIsEditing(false)
+      return
+    }
+
+    // Захист: якщо самого ліда немає в стейті, то й оновлювати нічого
+    if (!leadData) return
+
+    setLoading(true)
+    try {
+      // 2. Реальний PATCH запит на бекенд
+      const response = await fetch(`/api/v1/leads/${id.trim()}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          // Якщо у вас використовується JWT авторизація, розкоментуй рядок нижче:
+          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(draftChanges),
+      })
+
+      // 3. Перевірка на помилки сервера (4xx, 5xx)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(
+          errorData?.message || `Сервер повернув помилку: ${response.status}`
+        )
+      }
+
+      // (Опціонально) Якщо твій бекенд у відповідь повертає вже оновлений об'єкт ліда:
+      const updatedLead = await response.json()
+
+      setLeadData((prev) => {
+        if (!prev) return null
+        return {
+          ...prev,
+          ...updatedLead,
+        }
+      })
+
+      // 5. Скидаємо чернетку і закриваємо інпути
+      setDraftChanges({})
+      setIsEditing(false)
+    } catch (err) {
+      console.error("🚨 Помилка під час збереження ліда:", err)
+      // Тут варто додати виклик твого Toast/Notification сервісу, щоб менеджер бачив фейл
+      // toast.error("Не вдалося зберегти зміни. Спробуйте ще раз.");
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (loading) return <PageLoader />
   if (error || !lead) {
     return (
@@ -119,6 +264,33 @@ export default function LeadDetailPage() {
 
   return (
     <div className="w-full space-y-6">
+      <div className="flex gap-2">
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-1.5 text-xs font-medium text-indigo-400 transition hover:bg-slate-800"
+          >
+            ✏️ Редагувати сторінку
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleCancel}
+              disabled={loading}
+              className="rounded-lg border border-slate-800 bg-slate-900 px-4 py-1.5 text-xs text-slate-400 transition hover:bg-slate-800"
+            >
+              Скасувати
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="min-w-[80px] rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500"
+            >
+              {loading ? "Збереження..." : "✓ Зберегти"}
+            </button>
+          </div>
+        )}
+      </div>
       {/* Основна сітка на дві рівні колонки */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* ========================================== */}
@@ -144,9 +316,16 @@ export default function LeadDetailPage() {
               <label className="mb-0.5 block text-xs text-slate-500">
                 Повне ім'я
               </label>
-              <span className="text-lg font-bold tracking-wide">
-                {renderVal(lead.full_name)}
-              </span>
+              <EditableField
+                isEditing={isEditing}
+                name="full_name"
+                value={lead.full_name}
+                onChange={handleFieldChange}
+              >
+                <span className="text-lg font-bold tracking-wide">
+                  {renderVal(lead.full_name)}
+                </span>
+              </EditableField>
             </div>
 
             {/* Телефони */}
@@ -155,22 +334,36 @@ export default function LeadDetailPage() {
                 <label className="mb-0.5 block text-xs">
                   Телефон (введений)
                 </label>
-                <a
-                  href={`tel:${lead.phone}`}
-                  className="font-mono text-sm hover:underline"
+                <EditableField
+                  isEditing={isEditing}
+                  name="phone"
+                  value={lead.phone}
+                  onChange={handleFieldChange}
                 >
-                  {renderVal(lead.phone)}
-                </a>
+                  <a
+                    href={`tel:${lead.phone}`}
+                    className="font-mono text-sm hover:underline"
+                  >
+                    {renderVal(lead.phone)}
+                  </a>
+                </EditableField>
               </div>
               {lead.phone_normalized && (
                 <div>
                   <label className="mb-0.5 block text-xs">
                     Нормалізований (Локація)
                   </label>
-                  <span className="block font-mono text-sm">
-                    {lead.phone_normalized}{" "}
-                    {lead.phone_location ? `(${lead.phone_location})` : ""}
-                  </span>
+                  <EditableField
+                    isEditing={isEditing}
+                    name="phone_location"
+                    value={lead.phone_location}
+                    onChange={handleFieldChange}
+                  >
+                    <span className="block font-mono text-sm">
+                      {lead.phone_normalized}{" "}
+                      {lead.phone_location ? `(${lead.phone_location})` : ""}
+                    </span>
+                  </EditableField>
                 </div>
               )}
             </div>
@@ -249,26 +442,54 @@ export default function LeadDetailPage() {
               <span className="block text-[10px] font-medium uppercase">
                 Поточний статус
               </span>
-              <span
-                className={`mt-0.5 block text-sm font-bold ${LEAD_STATUS_CONFIG[lead.status as keyof typeof LEAD_STATUS_CONFIG]?.css}`}
-              >
-                {renderVal(
-                  LEAD_STATUS_CONFIG[
-                    lead.status as keyof typeof LEAD_STATUS_CONFIG
-                  ]?.label
+              <EditableField
+                isEditing={isEditing}
+                name="status"
+                value={lead.status}
+                onChange={handleFieldChange}
+                type="select"
+                options={Object.entries(LEAD_STATUS_CONFIG).map(
+                  ([key, config]) => ({
+                    value: key,
+                    label: config.label,
+                  })
                 )}
-              </span>
+              >
+                <span
+                  className={`mt-0.5 block text-sm font-bold ${LEAD_STATUS_CONFIG[lead.status as keyof typeof LEAD_STATUS_CONFIG]?.css}`}
+                >
+                  {renderVal(
+                    LEAD_STATUS_CONFIG[
+                      lead.status as keyof typeof LEAD_STATUS_CONFIG
+                    ]?.label
+                  )}
+                </span>
+              </EditableField>
             </div>
             <div className="rounded border border-slate-800 p-2 text-center">
               <span className="block text-[10px] font-medium text-slate-500 uppercase">
                 Роль ліда
               </span>
-              <span className="mt-0.5 block text-sm font-bold text-indigo-400">
-                {renderVal(
-                  LEAD_ROLE_CONFIG[lead.role as keyof typeof LEAD_ROLE_CONFIG]
-                    ?.label
+              <EditableField
+                isEditing={isEditing}
+                name="role"
+                value={lead.role}
+                onChange={handleFieldChange}
+                type="select"
+                options={Object.entries(LEAD_ROLE_CONFIG).map(
+                  ([key, config]) => ({
+                    value: key,
+                    label: config.label,
+                  })
                 )}
-              </span>
+              >
+                <span className="mt-0.5 block text-sm font-bold text-indigo-400">
+                  {renderVal(
+                    LEAD_ROLE_CONFIG[lead.role as keyof typeof LEAD_ROLE_CONFIG]
+                      ?.label
+                  )}
+                </span>
+              </EditableField>
             </div>
           </div>
 
@@ -276,17 +497,33 @@ export default function LeadDetailPage() {
           <div className="flex flex-wrap gap-2 pt-1">
             {lead.stage && (
               <span className="rounded px-2 py-1 text-xs">
-                Етап: <strong>{lead.stage}</strong>
+                Етап:{" "}
+                <EditableField
+                  isEditing={isEditing}
+                  name="stage"
+                  value={lead.stage}
+                  onChange={handleFieldChange}
+                >
+                  <strong>{lead.stage}</strong>
+                </EditableField>
               </span>
             )}
             {lead.contact_status && (
               <span className="rounded px-2 py-1 text-xs">
-                Статус контакту: <strong>{lead.contact_status}</strong>
+                Статус контакту:{" "}
+                <EditableField
+                  isEditing={isEditing}
+                  name="contact_status"
+                  value={lead.contact_status}
+                  onChange={handleFieldChange}
+                >
+                  <strong>{lead.contact_status}</strong>
+                </EditableField>
               </span>
             )}
-            {lead.action_priority && (
+            {lead.priority && (
               <span className="rounded border border-red-900/50 px-2 py-1 text-xs">
-                Дія: <strong>{lead.action_priority}</strong>
+                Приоритет: <strong>{lead.priority}</strong>
               </span>
             )}
             {lead.warmth !== null && (
@@ -505,6 +742,7 @@ export default function LeadDetailPage() {
               <span className="block text-[10px] font-bold text-emerald-500 uppercase">
                 Загальний Бюджет
               </span>
+
               <span className="mt-0.5 block text-xl font-black text-emerald-400">
                 {lead.budget
                   ? lead.budget
@@ -646,7 +884,7 @@ export default function LeadDetailPage() {
                     lead.view_requested_idsExpand ||
                       (lead.wants_viewing_idExpand
                         ? [lead.wants_viewing_idExpand]
-                        : null),
+                        : undefined),
                     "bg-red-500/10 border border-red-500/20"
                   )}
                 </div>
@@ -1179,9 +1417,16 @@ export default function LeadDetailPage() {
               <label className="mb-0.5 block text-slate-500">
                 Причина інтересу
               </label>
-              <span className="block font-medium">
-                {renderVal(lead.interest_reasonExpand || lead.interest_reason)}
-              </span>
+              <EditableField
+                isEditing={isEditing}
+                name="interest_reason"
+                value={lead.interest_reason}
+                onChange={handleFieldChange}
+              >
+                <span className="block font-medium">
+                  {renderVal(lead.interest_reason)}
+                </span>
+              </EditableField>
             </div>
             <div>
               <label className="mb-0.5 block text-slate-500">
