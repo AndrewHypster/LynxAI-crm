@@ -155,6 +155,8 @@ const TableRowMemo = React.memo(
             // 2. Рендер на основі типу
             switch (col.type) {
               case "badge-icon":
+                console.log(col, item)
+                
                 return (
                   <BadgeIconCell
                     value={item}

@@ -36,9 +36,8 @@ export const managerColumns: ColumnConfig<User>[] = [
   },
   {
     header: "Статус",
-    key: "current-status",
-    type: "badge-dot",
-    config: USER_STATUS_CONFIG,
+    key: "current_stage",
+    type: "text",
   },
 
   {

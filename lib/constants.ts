@@ -19,6 +19,7 @@ import {
 // 1. SYSTEM ROLES (Для користувачів системи)
 // ==========================================
 export const USER_ROLES = {
+  user: "user",
   CREATOR: "CREATOR",
   ADMIN: "ADMIN",
   MANAGER: "MANAGER",
@@ -27,6 +28,12 @@ export const USER_ROLES = {
 export type UserRole = keyof typeof USER_ROLES
 
 export const USER_ROLE_CONFIG = {
+  [USER_ROLES.user]: {
+    label: "Клієнт",
+    icon: User,
+    dot: "bg-emerald-500",
+    css: "text-emerald-700 bg-emerald-50 border-emerald-200",
+  },
   [USER_ROLES.CREATOR]: {
     label: "Засновник",
     icon: ShieldCheck,

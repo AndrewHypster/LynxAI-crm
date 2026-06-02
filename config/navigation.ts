@@ -38,8 +38,8 @@ export const NAV_CONFIG = [
         roles: ["CREATOR"],
       },
       {
-        title: "Команда",
-        url: "/admin/team",
+        title: "Юзери",
+        url: "/managers",
         icon: Users,
         roles: ["ADMIN"],
       },

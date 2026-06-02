@@ -14,9 +14,14 @@ export async function GET(request: NextRequest) {
     // Швидко бере закешований токен (або оновлює його, якщо пройшла година)
     const token = getValidApiToken()
 
+    
+
     const res = await fetch(targetUrl, {
       headers: { Authorization: `Bearer ${token}` },
     })
+
+    // console.log(await res.json())
+
 
     if (!res.ok)
       return NextResponse.json({ error: "API Error" }, { status: res.status })
