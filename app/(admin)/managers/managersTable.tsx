@@ -1,9 +1,9 @@
 "use client"
 
-import { leadColumns } from "@/components/columns/leads"
+import { managerColumns } from "@/components/columns/managers"
 import { PageLoader } from "@/components/loading"
 import { EmptyTable, UniversalTable } from "@/components/table"
-import { Lead } from "@/lib/constants"
+import { User } from "@/lib/constants"
 import {
   usePathname,
   useSearchParams,
@@ -21,8 +21,8 @@ export default function ManagersTable() {
   const limit = 25
 
   const [isLoading, setIsLoading] = useState(true)
-  const [lead, setLeads] = useState<Lead[]>([])
-  const leadsCache = useRef<{ [key: number]: Lead[] }>({})
+  const [user, setUsers] = useState<User[]>([])
+  const usersCache = useRef<{ [key: number]: User[] }>({})
   const [totalPages, setTotalPages] = useState<number>(0)
 
   const handlePageChange = (newPage: number) => {
@@ -32,25 +32,25 @@ export default function ManagersTable() {
   }
 
   useEffect(() => {
-    const loadLeads = async () => {
+    const loadUsers = async () => {
       setIsLoading(true)
       
       if (totalPages != 0 && page > totalPages) redirect("/404")
-      if (leadsCache.current[page]) {
-        setLeads(leadsCache.current[page])
+      if (usersCache.current[page]) {
+        setUsers(usersCache.current[page])
          setIsLoading(false)
         return
       }
 
       try {
-        const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}`)
+        const res = await fetch(`/api/v1/users?page=${page}&limit=${limit}`)
         console.log(res);
         
         if (!res.ok) throw new Error(`Помилка сервера: ${res.status};
         }`)
 
         const responseData = await res.json()
-        const fetchedLeads = responseData.data || []
+        const fetchedUsers = responseData.data || []
         const serverTotalPages = responseData.meta?.pages || 1
 
         // 2. Якщо сервер повернув нову кількість сторінок, яка відрізняється від нашої —
@@ -60,8 +60,8 @@ export default function ManagersTable() {
         }
 
         // 3. Записуємо в кеш тільки масив лідів для цієї сторінки (навіть якщо він порожній)
-        leadsCache.current[page] = fetchedLeads
-        setLeads(fetchedLeads)
+        usersCache.current[page] = fetchedUsers
+        setUsers(fetchedUsers)
       } catch (err) {
         console.error(err)
       } finally {
@@ -69,7 +69,7 @@ export default function ManagersTable() {
       }
     }
 
-    loadLeads()
+    loadUsers()
   }, [page])
 
   return (
@@ -80,16 +80,16 @@ export default function ManagersTable() {
 
       {isLoading && <PageLoader />}
 
-      {!isLoading && lead && page > totalPages ? (
+      {!isLoading && user && page > totalPages ? (
         <EmptyTable
           page={page}
           totalPages={totalPages}
           handlePageChange={handlePageChange}
         />
       ) : (
-        <UniversalTable<Lead>
-          data={lead as Lead[]}
-          columns={leadColumns}
+        <UniversalTable<User>
+          data={user as User[]}
+          columns={managerColumns}
           onChange={async ({ id, key, value }) => {
             // 1. Формуємо тіло запиту динамічно: { [key]: value }
             // Наприклад, якщо міняємо роль: { role: "partner" }
@@ -97,7 +97,7 @@ export default function ManagersTable() {
 
             try {
               // 2. Шлемо запит на твій новий захищений API-роут
-              const res = await fetch(`/api/v1/leads/${id}`, {
+              const res = await fetch(`/api/v1/users/${id}`, {
                 method: "PATCH",
                 headers: {
                   "Content-Type": "application/json",
@@ -115,14 +115,14 @@ export default function ManagersTable() {
               }
 
               // 4. ТІЛЬКИ ЯКЩО СЕРВЕР ПОВЕРНУВ 200 ОК — оновлюємо стейт і кеш
-              setLeads((prev) => {
+              setUsers((prev) => {
                 const updated = prev.map((item) =>
                   String(item.id) === String(id)
                     ? { ...item, ...data } // Бекенд повертає оновлений об'єкт, мержимо його
                     : item
                 )
                 
-                leadsCache.current[page] = updated
+                usersCache.current[page] = updated
                 return updated
               })
 
