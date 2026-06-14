@@ -5,7 +5,7 @@ import { Send } from "lucide-react"
 
 export const managerColumns: ColumnConfig<User>[] = [
   {
-    header: "Менеджер ID",
+    header: "ID",
     key: "id",
     type: "custom",
     render: (user) => (

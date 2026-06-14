@@ -38,7 +38,7 @@ export const NAV_CONFIG = [
         roles: ["CREATOR"],
       },
       {
-        title: "Юзери",
+        title: "Менеджери",
         url: "/managers",
         icon: Users,
         roles: ["ADMIN"],

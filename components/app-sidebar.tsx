@@ -7,18 +7,29 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { NAV_CONFIG } from "@/config/navigation"
 import Link from "next/link"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
-import { LogOut, User } from "lucide-react"
-import { useEffect } from "react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { Building2, ChevronsUpDown, LogOut, Plus, User } from "lucide-react"
+import { useEffect, useState } from "react"
+
+const mockCompanies = [
+  { id: "1", name: "ТОВ Рога і Копита", plan: "Enterprise" },
+  { id: "2", name: "КиївБуд Девелопмент", plan: "Startup" },
+  { id: "3", name: "Borshchiv Digital", plan: "Free" },
+]
 
 export function AppSidebar() {
   const { data: session, status } = useSession()
+  const [activeCompany, setActiveCompany] = useState(mockCompanies[0])
+
+  const user = session?.user
+  const currentUserRole = user?.role
 
    useEffect(() => {
      console.log(
@@ -43,8 +54,93 @@ export function AppSidebar() {
 
   const userRole = session?.user?.role || "MANAGER" // Дефолтна роль для безпеки
 
+  if (!user) return null
   return (
     <Sidebar collapsible="icon" className="z-[100]">
+
+
+
+
+
+
+
+<SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+{currentUserRole === "ADMIN" && <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  {/* Іконка компанії / Лого */}
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                    <Building2 className="size-4" />
+                  </div>
+                  {/* Назва поточної компанії */}
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{activeCompany.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">{activeCompany.plan}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4 opacity-50" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              
+              {/* Випадаючий список з кастомним скролом, якщо компаній багато */}
+              <DropdownMenuPortal>
+  <DropdownMenuContent
+    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg border bg-popover text-popover-foreground shadow-md z-[100]"
+    align="start"
+    side="bottom"
+    sideOffset={4}
+  >
+    <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1.5">
+      Компанії
+    </DropdownMenuLabel>
+    
+    {/* Обгортка для скролу з адаптивним скролбаром */}
+    <div className="max-h-[200px] overflow-y-auto custom-scrollbar p-1 space-y-0.5">
+      {mockCompanies.map((company) => (
+        <DropdownMenuItem
+          key={company.id}
+          onClick={() => setActiveCompany(company)}
+          className="gap-2 p-2 cursor-pointer rounded-sm data-[focused]:bg-accent data-[focused]:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+        >
+          {/* Квадратик з ініціалами */}
+          <div className="flex size-6 items-center justify-center rounded-sm border border-border bg-muted text-[10px] font-medium text-muted-foreground">
+            {company.name.slice(0, 2).toUpperCase()}
+          </div>
+          
+          <span className="truncate flex-1 text-sm">{company.name}</span>
+          
+          {activeCompany.id === company.id && (
+            <span className="text-primary text-xs font-bold">✓</span>
+          )}
+        </DropdownMenuItem>
+      ))}
+    </div>
+    
+    <DropdownMenuSeparator className="bg-border my-1" />
+    
+    {/* Фіксована кнопка дії внизу */}
+    <DropdownMenuItem className="gap-2 p-2 cursor-pointer text-muted-foreground focus:bg-accent focus:text-accent-foreground rounded-sm">
+      <div className="flex size-6 items-center justify-center rounded-md border border-dashed border-border bg-background">
+        <Plus className="size-4" />
+      </div>
+      <div className="font-medium text-xs">Додати компанію</div>
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenuPortal>
+            </DropdownMenu>}
+            
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+
+
+
+      
       <SidebarContent>
         {NAV_CONFIG.map((group) => {
           // Фільтруємо пункти всередині групи
@@ -99,7 +195,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="z-[101] w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  className="z-[101] w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg z-[100]"
                   side="bottom"
                   align="end"
                   sideOffset={4}

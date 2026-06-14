@@ -43,7 +43,7 @@ export default function ManagersTable() {
       }
 
       try {
-        const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}`)
+        const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}&role=buyer`)
         console.log(res);
         
         if (!res.ok) throw new Error(`Помилка сервера: ${res.status};
@@ -75,7 +75,7 @@ export default function ManagersTable() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Юзери</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Мої ліди</h1>
       </div>
 
       {isLoading && <PageLoader />}

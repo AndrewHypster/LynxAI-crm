@@ -20,8 +20,6 @@ export async function GET(request: NextRequest) {
       headers: { Authorization: `Bearer ${token}` },
     })
 
-    // console.log(await res.json())
-
 
     if (!res.ok)
       return NextResponse.json({ error: "API Error" }, { status: res.status })

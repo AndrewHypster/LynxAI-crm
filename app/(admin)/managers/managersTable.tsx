@@ -62,6 +62,8 @@ export default function ManagersTable() {
         // 3. Записуємо в кеш тільки масив лідів для цієї сторінки (навіть якщо він порожній)
         usersCache.current[page] = fetchedUsers
         setUsers(fetchedUsers)
+        console.log("USERS", fetchedUsers);
+        
       } catch (err) {
         console.error(err)
       } finally {
@@ -75,7 +77,7 @@ export default function ManagersTable() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Юзери</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Менеджери</h1>
       </div>
 
       {isLoading && <PageLoader />}
