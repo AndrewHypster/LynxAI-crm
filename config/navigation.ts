@@ -50,6 +50,12 @@ export const NAV_CONFIG = [
         roles: ["MANAGER", "ADMIN"],
       },
       {
+        title: "Створити ліда",
+        url: "/leads/create",
+        icon: BarChart3,
+        roles: ["CREATOR", "ADMIN"],
+      },
+      {
         title: "Об'єкти",
         url: "/properties",
         icon: Home,

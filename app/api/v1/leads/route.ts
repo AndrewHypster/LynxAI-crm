@@ -14,8 +14,6 @@ export async function GET(request: NextRequest) {
     const token = await getValidApiToken()
 
     try {
-      // Швидко бере закешований токен (або оновлює його, якщо пройшла година)
-  
       const res = await fetch(targetUrl, {
         headers: { Authorization: `Bearer ${token}` },
       })

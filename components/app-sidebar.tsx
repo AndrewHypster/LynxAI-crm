@@ -19,12 +19,6 @@ import { Building2, ChevronsUpDown, LogOut, Plus, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Company } from "@/lib/constants"
 
-const mockCompanies = [
-  { id: "1", name: "ТОВ Рога і Копита", plan: "Enterprise" },
-  { id: "2", name: "КиївБуд Девелопмент", plan: "Startup" },
-  { id: "3", name: "Borshchiv Digital", plan: "Free" },
-]
-
 export function AppSidebar() {
   const { data: session, status } = useSession()
   const [companies, setCompanies] = useState<Company[]>([])

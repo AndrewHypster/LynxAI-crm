@@ -15,7 +15,7 @@ export function generateUserApiToken({ userId, role, companyId }: TokenPayload):
 
   return jwt.sign(
     {
-      role: role.toLowerCase(),
+      // role: role.toLowerCase(),
       // companyId: companyId,
     },
     privateKey,
