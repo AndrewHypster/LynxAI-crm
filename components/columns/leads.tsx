@@ -4,6 +4,20 @@ import Link from "next/link"
 
 export const leadColumns: ColumnConfig<Lead>[] = [
   {
+    header: "ID",
+    key: "id",
+    type: "custom",
+    render: (user) => (
+      <span className="font-mono text-sm text-gray-600">
+        {user.id === 0 || !user.id ? (
+          <span className="text-red-400">Невказано</span>
+        ) : (
+          `#${user.id}`
+        )}
+      </span>
+    ),
+  },
+  {
     header: "Ім'я",
     key: "full_name",
     type: "text",

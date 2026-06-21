@@ -442,6 +442,17 @@ export interface BaseProperty {
   createdAt: string // дата створення
 }
 
+// ==========================================
+// COMPANY
+// ==========================================
+
+export interface Company {
+  id: string
+  name: string
+  subscription_id: number | null
+  created_at: string
+}
+
 export interface HouseProperty extends BaseProperty {}
 export interface ApartmentProperty extends BaseProperty {}
 export interface LandProperty extends BaseProperty {}

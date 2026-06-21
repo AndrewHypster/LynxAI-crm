@@ -25,7 +25,8 @@ import {
   TableRow,
 } from "./ui/table"
 import { Badge } from "./ui/badge"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
+import { Input } from "./ui/input"
 
 export interface ColumnConfig<T> {
   header: string // Назва в шапці
@@ -37,9 +38,8 @@ export interface ColumnConfig<T> {
 }
 
 interface UniversalTableProps<T> {
-  data: any[]
+  data: T[]
   columns: ColumnConfig<T>[]
-
   onChange: ({
     id,
     key,
@@ -49,6 +49,15 @@ interface UniversalTableProps<T> {
     key: string
     value: string
   }) => void
+
+  filtering?: {
+    searchValue: string
+    onSearchChange: (value: string) => void
+    searchPlaceholder?: string
+    // Опціонально для майбутніх селектів (наприклад, по статусу)
+    statusValue?: string
+    onStatusChange?: (value: string) => void
+  }
 
   pagination?: {
     currentPage: number
@@ -226,6 +235,7 @@ export function UniversalTable<T extends BaseEntity>({
   data,
   columns,
   onChange,
+  filtering,
   pagination
 }: UniversalTableProps<T>) {
   const [modal, setModal] = useState<ModalProps | null>(null)

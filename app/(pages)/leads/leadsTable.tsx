@@ -21,7 +21,7 @@ export default function ManagersTable() {
   const limit = 25
 
   const [isLoading, setIsLoading] = useState(true)
-  const [lead, setLeads] = useState<Lead[]>([])
+  const [leads, setLeads] = useState<Lead[]>([])
   const leadsCache = useRef<{ [key: number]: Lead[] }>({})
   const [totalPages, setTotalPages] = useState<number>(0)
 
@@ -43,8 +43,7 @@ export default function ManagersTable() {
       }
 
       try {
-        const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}&role=buyer`)
-        console.log(res);
+        const res = await fetch(`/api/v1/leads?page=${page}&limit=${limit}`)
         
         if (!res.ok) throw new Error(`Помилка сервера: ${res.status};
         }`)
@@ -60,6 +59,8 @@ export default function ManagersTable() {
         }
 
         // 3. Записуємо в кеш тільки масив лідів для цієї сторінки (навіть якщо він порожній)
+        console.log(fetchedLeads);
+
         leadsCache.current[page] = fetchedLeads
         setLeads(fetchedLeads)
       } catch (err) {
@@ -80,7 +81,7 @@ export default function ManagersTable() {
 
       {isLoading && <PageLoader />}
 
-      {!isLoading && lead && page > totalPages ? (
+      {!isLoading && leads && totalPages < 1 ? (
         <EmptyTable
           page={page}
           totalPages={totalPages}
@@ -88,7 +89,7 @@ export default function ManagersTable() {
         />
       ) : (
         <UniversalTable<Lead>
-          data={lead as Lead[]}
+          data={leads as Lead[]}
           columns={leadColumns}
           onChange={async ({ id, key, value }) => {
             // 1. Формуємо тіло запиту динамічно: { [key]: value }

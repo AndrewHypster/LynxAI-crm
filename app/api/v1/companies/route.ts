@@ -1,18 +1,17 @@
-import { NextRequest, NextResponse } from "next/server"
 import { getValidApiToken } from "@/lib/token"
+import { getServerSession } from "next-auth"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
-  const { searchParams } = new URL(request.url)
-  const queryString = searchParams.toString()
+  const targetUrl = `${EXTERNAL_API_URL}/companies`
+  const session = await getServerSession()
 
-  const targetUrl = queryString
-    ? `${EXTERNAL_API_URL}/users?${queryString}`
-    : `${EXTERNAL_API_URL}/users`
+  if (!session) return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  const token = await getValidApiToken()
 
   try {
     // Швидко бере закешований токен (або оновлює його, якщо пройшла година)
-    const token = await getValidApiToken()
 
     const res = await fetch(targetUrl, {
       headers: { Authorization: `Bearer ${token}` },

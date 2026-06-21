@@ -1,49 +1,40 @@
+// lib/token.ts
 import jwt from "jsonwebtoken"
+import { authOptions } from "./auth"
+import { getServerSession } from "next-auth"
 
-// Розширюємо глобальний об'єкт для TypeScript, щоб він не сварився
-declare global {
-  var _cachedApiToken: string | undefined
-  var _apiTokenExpiresAt: number | undefined
+interface TokenPayload {
+  userId: string
+  role: string
+  companyId: string
 }
 
-export function getValidApiToken(): string {
-  const currentTime = Date.now()
-
-  // Беремо значення з глобального сховища Node.js
-  const cachedToken = global._cachedApiToken
-  const tokenExpiresAt = global._apiTokenExpiresAt || 0
-
-  // Якщо токен живий — повертаємо його
-  if (cachedToken && tokenExpiresAt - currentTime > 30000) {
-    return cachedToken
-  }
-
-  console.log("🔄 Глобальний кеш порожній/застарів. Генерую новий RS256...")
-
+export function generateUserApiToken({ userId, role, companyId }: TokenPayload): string {
   const privateKey = process.env.PRIVATE_KEY?.replace(/\\n/g, "\n")
   if (!privateKey) throw new Error("Missing PRIVATE_KEY")
 
-  const expiresInSeconds = 3600 // 1 година
-
-  const newToken = jwt.sign(
+  return jwt.sign(
     {
-      sub: "user",
-      role: "full_access",
-      iat: Math.floor(currentTime / 1000),
-      exp: Math.floor(currentTime / 1000) + expiresInSeconds,
+      role: role.toLowerCase(),
+      // companyId: companyId,
     },
     privateKey,
-    {
-      algorithm: "RS256",
-      header: {
-        alg: "RS256",
-        typ: "JWT",
-      },
+    { 
+      algorithm: "RS256", 
+      expiresIn: "1h" 
     }
   )
+}
 
-  global._cachedApiToken = newToken
-  global._apiTokenExpiresAt = currentTime + expiresInSeconds * 1000
+export async function getValidApiToken(): Promise<string> {
+  const session = await getServerSession(authOptions) // Обов'язково передавай authOptions
+  const apiToken = session?.user?.apiToken
 
-  return newToken
+  if (!apiToken) {
+     return generateUserApiToken({ userId:session?.user.id as string, role:session?.user.role as string, companyId: session?.user.companyId as string })
+  }
+  console.log(apiToken);
+  
+  // NextAuth сам викликав ротацію, якщо час піджимав. Токен тут 100% свіжий.
+  return apiToken
 }

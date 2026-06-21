@@ -35,7 +35,7 @@ export default function RootLayout({
         <AllProviders>
           <AppSidebar />
           <main className="flex h-screen w-full flex-col">
-            <header className="z-[99] flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
+            <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
               <SidebarTrigger />
               <div className="flex-1">
                 <h1 className="text-lg font-semibold">LynxAI CRM</h1>
