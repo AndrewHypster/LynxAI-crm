@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   LucideLayers,
   Home,
+  Webhook,
 } from "lucide-react"
 
 export const NAV_CONFIG = [
@@ -66,6 +67,12 @@ export const NAV_CONFIG = [
   {
     title: "Інформація",
     items: [
+      {
+        title: "API",
+        url: "/api",
+        icon: Webhook,
+        roles: ["ADMIN", "CREATOR"],
+      },
       {
         title: "Ролі та права",
         url: "/roles",

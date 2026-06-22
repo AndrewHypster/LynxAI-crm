@@ -10,13 +10,14 @@ import {
   LeadDetails,
 } from "@/lib/constants"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 
 interface EditableFieldProps {
   isEditing: boolean // Чи активний глобальний режим редагування
   name: string // Унікальне ім'я поля в базі даних (напр. 'budget')
   value: any // Поточне значення (вже злите з чернетки)
-  onChange: (name: string, value: any) => void // Функція оновлення чернетки
-  type?: "text" | "select" | "textarea" // Тип інпута
+  onChange: (name: string, value: any, type?: string) => void // Функція оновлення чернетки
+  type?: "text" | "select" | "textarea" | "number" // Тип інпута
   options?: { value: string; label: string }[] // Варіанти для селекту
   inputClassName?: string // Можливість кастомізувати інпут зовні
   children: React.ReactNode // Твій оригінальний read-only дизайн поля
@@ -71,7 +72,16 @@ export const EditableField: React.FC<EditableFieldProps> = ({
         </select>
       )
 
-    case "text":
+    case "number":
+      return (
+        <input
+          type="number"
+          value={value ?? ""}
+          onChange={(e) => onChange(name, e.target.value, 'number')}
+          className={baseInputStyle}
+        />
+      )
+
     default:
       return (
         <input
@@ -96,7 +106,9 @@ export default function LeadDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<VerticalTab>("eoselia")
   const [isEditing, setIsEditing] = useState(false)
-
+  const session = useSession()
+  const user = session.data?.user
+  
   // Об'єкт, який бачить менеджер (оригінал + накладені поверх зміни з інпутів)
   const lead = { ...leadData, ...draftChanges }
 
@@ -186,8 +198,13 @@ export default function LeadDetailPage() {
   }
 
   // Функція зміни поля в чернетці
-  const handleFieldChange = (name: string, value: any) => {
-    setDraftChanges((prev) => ({ ...prev, [name]: value }))
+  const handleFieldChange = (name: string, value: any, type?: string) => {
+    const parsedValue = type === "number"
+      ? (value === "" || value == null ? null : Number(value))
+      : value
+  console.log(parsedValue);
+  
+    setDraftChanges((prev) => ({ ...prev, [name]: parsedValue }))
   }
 
   // Скасування змін
@@ -397,6 +414,30 @@ export default function LeadDetailPage() {
                   {renderVal(lead.preferred_comm, "Не вказано")}
                 </span>
               </div>
+              {user?.role == "ADMIN" && <div>
+                <label className="mb-0.5 block text-xs">
+                  Менеджер
+                </label>
+                <span className="inline-block rounded text-sm font-medium">
+                <EditableField
+                    isEditing={isEditing}
+                    name="manager_id"
+                    value={lead.manager_id}
+                    type="number"
+                    onChange={handleFieldChange}
+                  >
+                    {lead.manager_id?
+                    <span className="inline-block rounded text-sm font-medium">
+                        <Link href={`/managers/${lead.manager_id}`}>ID: {lead.manager_id}</Link>
+                      </span> :
+                      <span className="inline-block rounded text-sm font-medium">
+                      Невказано
+                    </span>
+                    }
+                  </EditableField>
+                
+                </span>
+              </div>}
             </div>
 
             {/* Додаткові месенджери та Таймзона */}

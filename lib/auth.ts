@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
   // Динамічно беремо дані з об'єкта, без хардкоду та рядків 'null'
   return {
     ...userMock,
-    apiToken: generateUserApiToken({
+    apiToken: await generateUserApiToken({
       userId: userMock.id,
       role: userMock.role,
       companyId: userMock.companyId as string, // Передасть або null, або реальний ID компанії

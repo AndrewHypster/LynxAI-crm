@@ -4,6 +4,7 @@ import { leadColumns } from "@/components/columns/leads"
 import { PageLoader } from "@/components/loading"
 import { EmptyTable, UniversalTable } from "@/components/table"
 import { Lead } from "@/lib/constants"
+import { useSession } from "next-auth/react"
 import {
   usePathname,
   useSearchParams,
@@ -13,6 +14,9 @@ import {
 import { useEffect, useRef, useState } from "react"
 
 export default function ManagersTable() {
+  const session = useSession()
+  console.log(session);
+  
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
