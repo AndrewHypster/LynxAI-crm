@@ -1,4 +1,4 @@
-"use server"
+import { NextResponse } from "next/server"
 
 interface TelegramGetMeResponse {
   ok: boolean
@@ -14,51 +14,67 @@ interface TelegramGetMeResponse {
   }
 }
 
-export async function verifyTelegramBotAction(token: string) {
-  const cleanToken = token.trim()
-
-  if (!cleanToken) {
-    return { success: false, error: "Токен не може бути порожнім" }
-  }
-
-  // Швидка перевірка формату перед запитом
-  const tgTokenRegex = /^[0-9]+:[a-zA-Z0-9_-]{35,}$/
-  if (!tgTokenRegex.test(cleanToken)) {
-    return { success: false, error: "Некоректний формат токена" }
-  }
-
+export async function POST(request: Request) {
   try {
-    // Запит до офіційного API Telegram
+    // Парсимо body запиту
+    const body = await request.json()
+    const { token } = body
+
+    if (!token || typeof token !== "string" || !token.trim()) {
+      return NextResponse.json(
+        { success: false, error: "Токен не може бути порожнім" },
+        { status: 400 }
+      )
+    }
+
+    const cleanToken = token.trim()
+
+    // Швидка перевірка формату
+    const tgTokenRegex = /^[0-9]+:[a-zA-Z0-9_-]{35,}$/
+    if (!tgTokenRegex.test(cleanToken)) {
+      return NextResponse.json(
+        { success: false, error: "Некоректний формат токена" },
+        { status: 400 }
+      )
+    }
+
+    // Запит до Telegram API
     const response = await fetch(`https://api.telegram.org/bot${cleanToken}/getMe`, {
       method: "GET",
-      cache: "no-store", // Обов'язково для динамічних запитів у Next.js
+      cache: "no-store",
     })
 
     const data: TelegramGetMeResponse = await response.json()
 
     if (!response.ok || !data.ok) {
-      return { 
-        success: false, 
-        error: data.description || "Telegram відхилив цей токен" 
-      }
+      return NextResponse.json(
+        { success: false, error: data.description || "Telegram відхилив цей токен" },
+        { status: response.status === 401 ? 401 : 400 }
+      )
     }
 
     if (!data.result) {
-      return { success: false, error: "Telegram повернув порожню відповідь" }
+      return NextResponse.json(
+        { success: false, error: "Telegram повернув порожню відповідь" },
+        { status: 500 }
+      )
     }
 
-    // Повертаємо реальні дані бота
-    return {
+    // Успішна відповідь
+    return NextResponse.json({
       success: true,
       bot: {
         id: data.result.id.toString(),
         username: data.result.username,
         firstName: data.result.first_name
       }
-    }
+    })
 
   } catch (error) {
-    console.error("TELEGRAM_API_ERROR:", error)
-    return { success: false, error: "Помилка мережі при запиті до Telegram" }
+    console.error("TELEGRAM_API_ROUTE_ERROR:", error)
+    return NextResponse.json(
+      { success: false, error: "Помилка сервера або мережі при запиті до Telegram" },
+      { status: 500 }
+    )
   }
 }

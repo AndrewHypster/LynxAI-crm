@@ -14,11 +14,9 @@ import {
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { generateTokenClient, generateUserApiToken } from "@/lib/token"
+import { generateTokenClient } from "@/lib/token"
 import { useSession } from "next-auth/react"
 import { Input } from "@/components/ui/input"
-import { verifyTelegramBotAction } from "@/app/api/tg/route"
 
 // Імітація початкових даних (можна винести в пропси)
 const initialApiData = {
@@ -93,22 +91,29 @@ export default function ApiIntegrationView() {
     if (!botToken.trim() || !botType) return
 
     try {
-      const result = await verifyTelegramBotAction(botToken)
-      
-      if (result.success && result.bot) {
-        // Перезаписуємо конкретний слот (старий бот у цьому слоті просто заміниться)
-        setBots((prev) => ({
-          ...prev,
-          [botType]: { id: result.bot!.id, username: result.bot!.username }
-        }))
+        const response = await fetch("/api/tg", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: botToken }),
+        })
+    
+        const result = await response.json()
         
-        e.currentTarget.reset()
-      } else {
-        alert(result.error || "Не вдалося перевірити бота")
+        if (result.success && result.bot) {
+          // Твоя логіка оновлення стейту ботів
+          setBots((prev) => ({
+            ...prev,
+            [botType]: { 
+              id: result.bot.id, 
+              username: result.bot.username 
+            }
+          }))
+        } else {
+          alert(result.error || "Помилка валідації")
+        }
+      } catch (error) {
+        console.error("Помилка відправки:", error)
       }
-    } catch (error) {
-      console.error("Помилка відправки:", error)
-    }
   }
   // видалення ТГ бота
   const handleDelete = (type: "admin" | "user") => {
