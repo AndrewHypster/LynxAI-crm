@@ -45,13 +45,19 @@ export const NAV_CONFIG = [
         roles: ["ADMIN", "CREATOR"],
       },
       {
+        title: "+ користувача",
+        url: "/staff/create",
+        icon: Users,
+        roles: ["ADMIN", "CREATOR"],
+      },
+      {
         title: "Ліди",
         url: "/leads",
         icon: BarChart3,
         roles: ["MANAGER", "ADMIN"],
       },
       {
-        title: "Створити ліда",
+        title: "+ ліда",
         url: "/leads/create",
         icon: BarChart3,
         roles: ["CREATOR", "ADMIN"],

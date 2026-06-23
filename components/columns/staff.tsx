@@ -76,9 +76,9 @@ export const staffColumns: ColumnConfig<User>[] = [
       <Link
         className="flex h-auto items-center p-0 font-normal text-blue-500"
         target="_blank"
-        href={`https://t.me/${user.username}`}
+        href={`https://t.me/${user.telegram_username}`}
       >
-        <Send className="mr-1 h-3 w-3" /> @{user.username}
+        <Send className="mr-1 h-3 w-3" /> @{user.telegram_username}
       </Link>
     ),
   },
