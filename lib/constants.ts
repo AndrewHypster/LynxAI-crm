@@ -19,50 +19,61 @@ import {
 // 1. SYSTEM ROLES (Для користувачів системи)
 // ==========================================
 export const USER_ROLES = {
-  user: "user",
-  CREATOR: "CREATOR",
-  ADMIN: "ADMIN",
-  MANAGER: "MANAGER",
+  realtor: "realtor",
+  creator: "creator",
+  admin: "admin",
+  manager: "manager",
 } as const
 
 export type UserRole = keyof typeof USER_ROLES
 
 export const USER_ROLE_CONFIG = {
-  [USER_ROLES.user]: {
-    label: "Клієнт",
+  [USER_ROLES.realtor]: {
+    label: "Реєлтор",
     icon: User,
     dot: "bg-emerald-500",
     css: "text-emerald-700 bg-emerald-50 border-emerald-200",
   },
-  [USER_ROLES.CREATOR]: {
+  [USER_ROLES.creator]: {
     label: "Засновник",
     icon: ShieldCheck,
     css: "text-red-600 bg-red-50 border-red-200",
   },
-  [USER_ROLES.ADMIN]: {
+  [USER_ROLES.admin]: {
     label: "Адмін",
     icon: UserCog,
     css: "text-purple-600 bg-purple-50 border-purple-200",
   },
-  [USER_ROLES.MANAGER]: {
+  [USER_ROLES.manager]: {
     label: "Менеджер",
     icon: Contact,
     css: "text-blue-600 bg-blue-50 border-blue-200",
   },
 } as const
 
+// export const USER_STATUS_CONFIG = {
+//   ACTIVE: {
+//     label: "Активний",
+//     css: "bg-emerald-100 text-emerald-700 border-emerald-200",
+//   },
+//   INACTIVE: {
+//     label: "Неактивний",
+//     css: "bg-slate-100 text-slate-600 border-slate-200",
+//   },
+//   PENDING: {
+//     label: "Очікування",
+//     css: "bg-amber-100 text-amber-700 border-amber-200",
+//   },
+// } as const
+
 export const USER_STATUS_CONFIG = {
-  ACTIVE: {
+  true: {
     label: "Активний",
     css: "bg-emerald-100 text-emerald-700 border-emerald-200",
   },
-  INACTIVE: {
+  false: {
     label: "Неактивний",
     css: "bg-slate-100 text-slate-600 border-slate-200",
-  },
-  PENDING: {
-    label: "Очікування",
-    css: "bg-amber-100 text-amber-700 border-amber-200",
   },
 } as const
 

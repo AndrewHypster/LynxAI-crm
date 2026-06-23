@@ -39,10 +39,10 @@ export const NAV_CONFIG = [
         roles: ["CREATOR"],
       },
       {
-        title: "Менеджери",
-        url: "/managers",
+        title: "Штат",
+        url: "/staff",
         icon: Users,
-        roles: ["ADMIN"],
+        roles: ["ADMIN", "CREATOR"],
       },
       {
         title: "Ліди",

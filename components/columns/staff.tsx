@@ -3,7 +3,7 @@ import { ColumnConfig } from "../table"
 import Link from "next/link"
 import { Send } from "lucide-react"
 
-export const managerColumns: ColumnConfig<User>[] = [
+export const staffColumns: ColumnConfig<User>[] = [
   {
     header: "ID",
     key: "id",
@@ -23,8 +23,8 @@ export const managerColumns: ColumnConfig<User>[] = [
     key: "full_name",
     type: "text",
     render: (user) => (
-      <Link href={`/managers/${user.id}`}>
-        <span className="font-bold">{user.full_name || "Не вказано"}</span>
+      <Link href={`/staff/${user.id}`}>
+        <span className="font-bold">{user.username || "Не вказано"}</span>
       </Link>
     ),
   },
@@ -36,8 +36,16 @@ export const managerColumns: ColumnConfig<User>[] = [
   },
   {
     header: "Статус",
-    key: "current_stage",
-    type: "text",
+    key: "is_active",
+    type: "custom",
+    render: (user) => (
+      <button type="button"
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-black tracking-wider transition-all hover:opacity-80 active:scale-95 ${USER_STATUS_CONFIG[user.is_active ? "true" : "false"].css}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${USER_STATUS_CONFIG[user.is_active ? "true" : "false"].css}`} />
+      {USER_STATUS_CONFIG[user.is_active ? "true" : "false"].label}
+    </button>
+    ),
   },
 
   {

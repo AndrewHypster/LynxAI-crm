@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getValidApiToken } from "@/lib/token"
+import { getServerSession } from "next-auth"
 
 export async function GET(request: NextRequest) {
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL

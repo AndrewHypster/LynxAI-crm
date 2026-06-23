@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import ManagersTable from "./managersTable"
+import StaffTable from "./staffTable"
 
 export default function LeadsPage() {
   return (
@@ -8,7 +8,7 @@ export default function LeadsPage() {
         <div className="p-6 text-center">Завантаження навігації...</div>
       }
     >
-      <ManagersTable />
+      <StaffTable />
     </Suspense>
   )
 }

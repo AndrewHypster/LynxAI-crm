@@ -7,7 +7,6 @@ type RouteParams = {
   params: Promise<{ lead_id: string }>
 }
 
-// ВЗЯТИ СПИСОК ЛІДІВ
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
 

@@ -19,8 +19,9 @@ export async function generateUserApiToken({ userId, role, companyId, exp = '1h'
   return jwt.sign(
     {
       sub: 'creator',
+      id: +userId,
       role: role.toLowerCase(),
-      companyId: companyId,
+      companyId: +companyId,
     },
     privateKey,
     { 
@@ -44,7 +45,6 @@ export async function getValidApiToken(): Promise<string> {
   if (!apiToken) {
      return await generateUserApiToken({ userId:session?.user.id as string, role:session?.user.role as string, companyId: session?.user.companyId as string })
   }
-  console.log(apiToken);
   
   // NextAuth сам викликав ротацію, якщо час піджимав. Токен тут 100% свіжий.
   return apiToken

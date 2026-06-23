@@ -81,40 +81,44 @@ export default function ApiIntegrationView() {
   }
 
   // Функція обробки ТГ токену
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveBot = async (e: React.FormEvent<HTMLFormElement>, botType: "admin" | "user") => {
     e.preventDefault()
     
-    const formData = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const formData = new FormData(form)
     const botToken = formData.get("bot_token") as string
-    const botType = formData.get("bot_type") as "admin" | "user"
-
-    if (!botToken.trim() || !botType) return
-
+  
+    if (!botToken.trim()) return
+  
     try {
-        const response = await fetch("/api/tg", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: botToken }),
-        })
-    
-        const result = await response.json()
+      const response = await fetch("/api/tg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Передаємо і токен, і тип (якщо твій /api/tg очікує тип, щоб знати куди писати в БД)
+        body: JSON.stringify({ token: botToken, type: botType }), 
+      })
+  
+      const result = await response.json()
+      
+      if (result.success && result.bot) {
+        // Оновлюємо стейт по динамічному ключу botType, який прийшов з аргументів
+        setBots((prev) => ({
+          ...prev,
+          [botType]: { 
+            id: result.bot.id, 
+            username: result.bot.username 
+          }
+        }))
         
-        if (result.success && result.bot) {
-          // Твоя логіка оновлення стейту ботів
-          setBots((prev) => ({
-            ...prev,
-            [botType]: { 
-              id: result.bot.id, 
-              username: result.bot.username 
-            }
-          }))
-        } else {
-          alert(result.error || "Помилка валідації")
-        }
-      } catch (error) {
-        console.error("Помилка відправки:", error)
+        form.reset() // Очищаємо поле після успішного збереження
+      } else {
+        alert(result.error || "Помилка валідації")
       }
+    } catch (error) {
+      console.error("Помилка відправки:", error)
+    }
   }
+  
   // видалення ТГ бота
   const handleDelete = (type: "admin" | "user") => {
     setBots((prev) => ({ ...prev, [type]: null }))
@@ -146,39 +150,63 @@ export default function ApiIntegrationView() {
       </div>
 
       {/* Форма додавання / зміни бота */}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider block">
-          Налаштувати бота
-        </label>
-        <div className="flex flex-col sm:flex-row gap-2">
-          {/* Вибір типу бота (нативний, працює з FormData) */}
-          <select
-            name="bot_type"
-            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0 sm:w-[200px]"
-            required
-          >
-            <option value="user">Для користувачів</option>
-            <option value="admin">Для адмін панелі</option>
-          </select>
+      Ось оновлена форма. select повністю прибрано, натомість тепер є два окремі поля з унікальними name (admin_token та user_token), розташовані одне під одним.
 
+Оновлений JSX форми:
+TypeScript
+{/* Рядок 1: Адмін панель */}
+<form 
+          onSubmit={(e) => handleSaveBot(e, "admin")} 
+          className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3"
+        >
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 w-fit shrink-0 uppercase">
+            Для адмін панелі
+          </span>
+          
           <div className="relative flex-1">
             <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               name="bot_token"
               type="password"
-              placeholder="Токен від @BotFather"
-              className="pl-9 font-mono text-sm"
+              placeholder="Токен від @BotFather для адмінки"
+              className="pl-9 font-mono text-sm h-10"
               autoComplete="off"
               required
             />
           </div>
           
-          <Button type="submit" className="gap-2 shrink-0">
+          <Button type="submit" size="default" className="gap-2 shrink-0 sm:w-auto w-full">
             <Plus className="h-4 w-4" />
             Зберегти
           </Button>
-        </div>
-      </form>
+        </form>
+
+        {/* Рядок 2: Для користувачів */}
+        <form 
+          onSubmit={(e) => handleSaveBot(e, "user")} 
+          className="flex flex-col sm:flex-row sm:items-center gap-3"
+        >
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 sm:w-[160px] shrink-0 uppercase">
+            Для користувачів
+          </span>
+          
+          <div className="relative flex-1">
+            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-fit text-muted-foreground" />
+            <Input
+              name="bot_token"
+              type="password"
+              placeholder="Токен від @BotFather для клієнтів"
+              className="pl-9 font-mono text-sm h-10"
+              autoComplete="off"
+              required
+            />
+          </div>
+          
+          <Button type="submit" size="default" className="gap-2 shrink-0 sm:w-auto w-full">
+            <Plus className="h-4 w-4" />
+            Зберегти
+          </Button>
+        </form>
 
       {/* Статус слотів */}
       <div className="space-y-3">
