@@ -20,12 +20,12 @@ import { useEffect, useState } from "react"
 import { Company } from "@/lib/constants"
 
 export function AppSidebar() {
-  const { data: session, status } = useSession()
+  const session = useSession()
+  const user = session?.data?.user
+  const currentUserRole = user?.role
+  
   const [companies, setCompanies] = useState<Company[]>([])
   const [activeCompany, setActiveCompany] = useState<Company | null>(null)
-
-  const user = session?.user
-  const currentUserRole = user?.role
 
   const getCompanies = async () => {
     try {
@@ -45,7 +45,7 @@ export function AppSidebar() {
   }
 
   useEffect(() => {
-    if(currentUserRole == "ADMIN") getCompanies()
+    if(currentUserRole == "admin") getCompanies()
   }, [currentUserRole])
 
    useEffect(() => {
@@ -59,8 +59,14 @@ export function AppSidebar() {
      )
    }, [])
 
+  
+
+  const userRole = user?.role || "MANAGER" // Дефолтна роль для безпеки
+
+  if (!user) return null
+
   // 1. Якщо сесія ще вантажиться, не показуємо дефолтне меню
-  if (status === "loading") {
+  if (session.status === "loading") {
     return (
       <Sidebar collapsible="icon" className="z-[101]">
         <SidebarContent>
@@ -69,15 +75,12 @@ export function AppSidebar() {
     )
   }
 
-  const userRole = session?.user?.role || "MANAGER" // Дефолтна роль для безпеки
-
-  if (!user) return null
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="z-[101]">
         <SidebarMenu>
           <SidebarMenuItem>
-            {currentUserRole === "ADMIN" && <DropdownMenu>
+            {currentUserRole === "admin" && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
@@ -191,10 +194,10 @@ export function AppSidebar() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {session?.user?.name || "Користувач"}
+                    {user?.name || "Користувач"}
                   </span>
                   <span className="truncate text-xs">
-                    {session?.user?.role || "Role"}
+                    {user?.role || "Role"}
                   </span>
                 </div>
               </SidebarMenuButton>

@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import jwt from "jsonwebtoken"
-import { generateUserApiToken, getValidApiToken } from "./token"
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -14,92 +13,65 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        let userMock = null
-
-        if (credentials?.email === "creator@lynx.com") {
-          userMock = {
-            id: "1",
-            name: "Creator",
-            email: "creator@lynx.com",
-            role: "CREATOR",
-            companyId: null,
-          }
-        } else if (credentials?.email === "admin@lynx.com") {
-          userMock = {
-            id: "2", // Унікальний ID для тестів
-            name: "Admin",
-            email: "admin@lynx.com",
-            role: "ADMIN",
-            companyId: "UIDtw4w46w4yywsy",
-          }
-        } else if (credentials?.email === "manager@lynx.com") {
-          userMock = {
-            id: "3", // Унікальний ID для тестів
-            name: "Manager",
-            email: "manager@lynx.com",
-            role: "MANAGER",
-            companyId: "UIDtw4w46w4yywsy",
-          }
-        }
-
-        if (!userMock) return null
-
-        // Динамічно беремо дані з об'єкта, без хардкоду та рядків 'null'
+        if (!credentials?.username || !credentials?.password) return null;
+      
+        const res = await fetch(`${process.env.EXTERNAL_API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            username: credentials.username, 
+            password: credentials.password 
+          }),
+        });
+      console.log(res);
+      
+        if (!res.ok) return null;
+      
+        const data = await res.json(); // Отримуємо { access_token, role, ... }
+        
+        // Декодуємо JWT без перевірки підпису (бо це токен, який нам видав наш же надійний сервер)
+        const decoded = jwt.decode(data.access_token) as any;
+      
+        if (!decoded) return null;
+      
+        // Повертаємо об'єкт користувача
         return {
-          ...userMock,
-          apiToken: await generateUserApiToken({
-            userId: userMock.id,
-            role: userMock.role,
-            companyId: parseInt(userMock.companyId as string), // Передасть або null, або реальний ID компанії
-          }), // ⚠️ Якщо функція асинхронна (async/Promise), додай сюди await
-        }
+          id: decoded.id.toString(), // NextAuth очікує рядок
+          name: decoded.sub,
+          role: decoded.role,
+          companyId: decoded.company_id ? decoded.company_id.toString() : null,
+          apiToken: data.access_token, // Зберігаємо токен для подальших запитів
+        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const currentTime = Date.now()
-      const TOKEN_LIFETIME_MS = 60 * 60 * 1000 // 1 година
-
-      // 1. Первинний логін (викликається ОДИН раз при вході)
+      // 1. Первинний логін
       if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.companyId = user.companyId
-        token.apiToken = user.apiToken // 👈 Просто забираємо вже готовий токен з authorize
-        token.apiTokenExpiresAt = currentTime + TOKEN_LIFETIME_MS
-        return token
+        return {
+          ...token,
+          id: user.id,
+          role: user.role,
+          companyId: user.companyId,
+          apiToken: user.apiToken,
+          apiTokenExpiresAt: Date.now() + 60 * 60 * 1000, // 1 година
+        };
       }
-
-      // 2. Наступні запити (Ротація токена, коли user вже undefined)
-      const expiresAt = token.apiTokenExpiresAt || 0
-
-      // Якщо до кінця життя токена лишилося менше 5сек — оновлюємо
-      if (currentTime > expiresAt - 5000) {
-        console.log(
-          `🔄 API Токен для юзера ${token.id} застарів. Авто-перевипуск...`
-        )
-
-        try {
-          // Обов'язково передаємо дані з токена куки в генератор!
-          token.apiToken = await generateUserApiToken({
-            userId: token.id,
-            role: token.role,
-            companyId: parseInt(token.companyId as string),
-          }) // Якщо функція асинхронна, додай попереду await
-
-          token.apiTokenExpiresAt = currentTime + TOKEN_LIFETIME_MS
-        } catch (error) {
-          console.error("Помилка перевипуску токена:", error)
-          return { ...token, error: "RefreshAccessTokenError" }
-        }
+    
+      // 2. Перевірка на прострочення
+      const expiresAt = token.apiTokenExpiresAt as number || 0;
+      
+      if (Date.now() > expiresAt) {
+        // Токен закінчився. Повертаємо помилку, щоб клієнт міг це обробити
+        return { ...token, error: "RefreshAccessTokenError" };
       }
-
-      return token
+    
+      return token;
     },
 
     async session({ session, token }) {
@@ -108,8 +80,6 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.role = token.role
         session.user.companyId = token.companyId
-        session.user.apiToken = token.apiToken
-        session.user.apiTokenExpiresAt = token.apiTokenExpiresAt
 
         if (token.error) {
           session.error = token.error

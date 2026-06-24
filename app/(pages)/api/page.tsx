@@ -1,26 +1,42 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { 
-  Key, Copy, Check, Eye, EyeOff, RefreshCw, 
-  CheckCircle2, ShieldAlert, Terminal, BookOpen, Calendar, 
+import {
+  Key,
+  Copy,
+  Check,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  CheckCircle2,
+  ShieldAlert,
+  Terminal,
+  BookOpen,
+  Calendar,
   Trash2,
   Bot,
   Plus,
   KeyRound,
   ExternalLink,
   UserCheck,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { generateTokenClient } from "@/lib/token"
+// import { generateTokenClient } from "@/lib/token"
 import { useSession } from "next-auth/react"
 import { Input } from "@/components/ui/input"
 
 // Імітація початкових даних (можна винести в пропси)
 const initialApiData = {
-  description: "Цей API-токен призначений для синхронізації сутностей CRM (ліди, об'єкти нерухомості) із зовнішніми лендінгами, Telegram-ботами або іншими внутрішніми сервісами компанії.",
+  description:
+    "Цей API-токен призначений для синхронізації сутностей CRM (ліди, об'єкти нерухомості) із зовнішніми лендінгами, Telegram-ботами або іншими внутрішніми сервісами компанії.",
   created_at: "2026-06-01T10:00:00.000Z",
   expires_at: "2027-06-01T10:00:00.000Z",
   token: "lx_live_51NfGzkK9zP8vY2m1R0wQ9Bx8Lz7K2p0sX5vB4nM9qW",
@@ -28,24 +44,24 @@ const initialApiData = {
     "Створення нових лідів (POST /api/v1/leads)",
     "Читання та фільтрація списку об'єктів (GET /api/v1/properties)",
     "Оновлення статусів та етапів воронок",
-    "Прикріплення об'єктів нерухомості до існуючих покупців"
+    "Прикріплення об'єктів нерухомості до існуючих покупців",
   ],
   limitations: [
     "Rate Limit: максимум 60 запитів на хвилину (RPM) з однієї IP-адреси",
     "Максимальний розмір JSON-payload: 2MB на один запит",
-    "Заборонено видалення (DELETE) системних сутностей через цей токен"
-  ]
+    "Заборонено видалення (DELETE) системних сутностей через цей токен",
+  ],
 }
 
 interface BotData {
-    id: string
-    username: string
-  }
+  id: string
+  username: string
+}
 
-  interface BotSlots {
-    admin: BotData | null
-    user: BotData | null
-  }
+interface BotSlots {
+  admin: BotData | null
+  user: BotData | null
+}
 
 export default function ApiIntegrationView() {
   const session = useSession()
@@ -57,16 +73,16 @@ export default function ApiIntegrationView() {
   const [activeTab, setActiveTab] = useState<"curl" | "fetch">("curl")
   const [bots, setBots] = useState<BotSlots>({
     admin: null,
-    user: null
+    user: null,
   })
 
   // Генеруємо токен тільки тоді, коли прийшли дані користувача
-  const generateToken = async () => {
-    setToken(await generateTokenClient('1h'))
-  }
-    useEffect(() => {
-        generateToken()
-    }, [user])
+  // const generateToken = async () => {
+  //   setToken(await generateTokenClient('1h'))
+  // }
+  // useEffect(() => {
+  //   generateToken()
+  // }, [user])
 
   // Функція копіювання токена
   const handleCopy = async () => {
@@ -76,40 +92,43 @@ export default function ApiIntegrationView() {
   }
 
   // Імітація ручного оновлення токена (Регенерація)
-  const handleRefresh = () => {
-    generateToken()
-  }
+  // const handleRefresh = () => {
+  //   generateToken()
+  // }
 
   // Функція обробки ТГ токену
-  const handleSaveBot = async (e: React.FormEvent<HTMLFormElement>, botType: "admin" | "user") => {
+  const handleSaveBot = async (
+    e: React.FormEvent<HTMLFormElement>,
+    botType: "admin" | "user"
+  ) => {
     e.preventDefault()
-    
+
     const form = e.currentTarget
     const formData = new FormData(form)
     const botToken = formData.get("bot_token") as string
-  
+
     if (!botToken.trim()) return
-  
+
     try {
       const response = await fetch("/api/tg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Передаємо і токен, і тип (якщо твій /api/tg очікує тип, щоб знати куди писати в БД)
-        body: JSON.stringify({ token: botToken, type: botType }), 
+        body: JSON.stringify({ token: botToken, type: botType }),
       })
-  
+
       const result = await response.json()
-      
+
       if (result.success && result.bot) {
         // Оновлюємо стейт по динамічному ключу botType, який прийшов з аргументів
         setBots((prev) => ({
           ...prev,
-          [botType]: { 
-            id: result.bot.id, 
-            username: result.bot.username 
-          }
+          [botType]: {
+            id: result.bot.id,
+            username: result.bot.username,
+          },
         }))
-        
+
         form.reset() // Очищаємо поле після успішного збереження
       } else {
         alert(result.error || "Помилка валідації")
@@ -118,166 +137,188 @@ export default function ApiIntegrationView() {
       console.error("Помилка відправки:", error)
     }
   }
-  
+
   // видалення ТГ бота
   const handleDelete = (type: "admin" | "user") => {
     setBots((prev) => ({ ...prev, [type]: null }))
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
-
-<div className="space-y-6 p-6 bg-card border rounded-xl">
-      {/* Заголовок */}
-      <div className="flex items-start justify-between gap-4 border-b pb-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold tracking-tight">Інтеграція Telegram Ботів</h3>
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
+      <div className="space-y-6 rounded-xl border bg-card p-6">
+        {/* Заголовок */}
+        <div className="flex items-start justify-between gap-4 border-b pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold tracking-tight">
+                Інтеграція Telegram Ботів
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Підключіть максимум 2 боти: один для сповіщень адмінів, інший —
+              для взаємодії з користувачами.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Підключіть максимум 2 боти: один для сповіщень адмінів, інший — для взаємодії з користувачами.
-          </p>
+          <a
+            href="https://t.me/BotFather"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary"
+          >
+            @BotFather <ExternalLink className="h-3 w-3" />
+          </a>
         </div>
-        <a 
-          href="https://t.me/BotFather" 
-          target="_blank" 
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+        {/* Форма додавання / зміни бота */}
+        Ось оновлена форма. select повністю прибрано, натомість тепер є два
+        окремі поля з унікальними name (admin_token та user_token), розташовані
+        одне під одним. Оновлений JSX форми: TypeScript
+        {/* Рядок 1: Адмін панель */}
+        <form
+          onSubmit={(e) => handleSaveBot(e, "admin")}
+          className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
         >
-          @BotFather <ExternalLink className="h-3 w-3" />
-        </a>
-      </div>
-
-      {/* Форма додавання / зміни бота */}
-      Ось оновлена форма. select повністю прибрано, натомість тепер є два окремі поля з унікальними name (admin_token та user_token), розташовані одне під одним.
-
-Оновлений JSX форми:
-TypeScript
-{/* Рядок 1: Адмін панель */}
-<form 
-          onSubmit={(e) => handleSaveBot(e, "admin")} 
-          className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3"
-        >
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 w-fit shrink-0 uppercase">
+          <span className="w-fit shrink-0 text-sm font-medium text-zinc-700 uppercase dark:text-zinc-300">
             Для адмін панелі
           </span>
-          
+
           <div className="relative flex-1">
-            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <KeyRound className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               name="bot_token"
               type="password"
               placeholder="Токен від @BotFather для адмінки"
-              className="pl-9 font-mono text-sm h-10"
+              className="h-10 pl-9 font-mono text-sm"
               autoComplete="off"
               required
             />
           </div>
-          
-          <Button type="submit" size="default" className="gap-2 shrink-0 sm:w-auto w-full">
+
+          <Button
+            type="submit"
+            size="default"
+            className="w-full shrink-0 gap-2 sm:w-auto"
+          >
             <Plus className="h-4 w-4" />
             Зберегти
           </Button>
         </form>
-
         {/* Рядок 2: Для користувачів */}
-        <form 
-          onSubmit={(e) => handleSaveBot(e, "user")} 
-          className="flex flex-col sm:flex-row sm:items-center gap-3"
+        <form
+          onSubmit={(e) => handleSaveBot(e, "user")}
+          className="flex flex-col gap-3 sm:flex-row sm:items-center"
         >
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 sm:w-[160px] shrink-0 uppercase">
+          <span className="shrink-0 text-sm font-medium text-zinc-700 uppercase sm:w-[160px] dark:text-zinc-300">
             Для користувачів
           </span>
-          
+
           <div className="relative flex-1">
-            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-fit text-muted-foreground" />
+            <KeyRound className="absolute top-1/2 left-3 h-4 w-fit -translate-y-1/2 text-muted-foreground" />
             <Input
               name="bot_token"
               type="password"
               placeholder="Токен від @BotFather для клієнтів"
-              className="pl-9 font-mono text-sm h-10"
+              className="h-10 pl-9 font-mono text-sm"
               autoComplete="off"
               required
             />
           </div>
-          
-          <Button type="submit" size="default" className="gap-2 shrink-0 sm:w-auto w-full">
+
+          <Button
+            type="submit"
+            size="default"
+            className="w-full shrink-0 gap-2 sm:w-auto"
+          >
             <Plus className="h-4 w-4" />
             Зберегти
           </Button>
         </form>
+        {/* Статус слотів */}
+        <div className="space-y-3">
+          <label className="block text-xs font-medium tracking-wider text-muted-foreground uppercase">
+            Поточні інтеграції
+          </label>
 
-      {/* Статус слотів */}
-      <div className="space-y-3">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider block">
-          Поточні інтеграції
-        </label>
-        
-        <div className="grid gap-3 md:grid-cols-2">
-          
-          {/* Слот 1: Адмін панель */}
-          <div className={`border rounded-lg p-3 flex items-center justify-between gap-4 ${bots.admin ? 'bg-zinc-50/50 dark:bg-zinc-900/30' : 'border-dashed bg-transparent'}`}>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`p-2 rounded-lg shrink-0 ${bots.admin ? 'bg-amber-500/10 text-amber-500' : 'bg-muted text-muted-foreground'}`}>
-                <ShieldCheck className="h-4 w-4" />
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Слот 1: Адмін панель */}
+            <div
+              className={`flex items-center justify-between gap-4 rounded-lg border p-3 ${bots.admin ? "bg-zinc-50/50 dark:bg-zinc-900/30" : "border-dashed bg-transparent"}`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div
+                  className={`shrink-0 rounded-lg p-2 ${bots.admin ? "bg-amber-500/10 text-amber-500" : "bg-muted text-muted-foreground"}`}
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Адмін панель
+                  </p>
+                  <p className="mt-0.5 truncate text-sm font-semibold">
+                    {bots.admin ? `@${bots.admin.username}` : "Не підключено"}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground font-medium">Адмін панель</p>
-                <p className="text-sm font-semibold truncate mt-0.5">
-                  {bots.admin ? `@${bots.admin.username}` : "Не підключено"}
-                </p>
-              </div>
+              {bots.admin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete("admin")}
+                  type="button"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-            {bots.admin && (
-              <Button 
-                variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive shrink-0"
-                onClick={() => handleDelete("admin")} type="button"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
 
-          {/* Слот 2: Користувачі */}
-          <div className={`border rounded-lg p-3 flex items-center justify-between gap-4 ${bots.user ? 'bg-zinc-50/50 dark:bg-zinc-900/30' : 'border-dashed bg-transparent'}`}>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`p-2 rounded-lg shrink-0 ${bots.user ? 'bg-blue-500/10 text-blue-500' : 'bg-muted text-muted-foreground'}`}>
-                <UserCheck className="h-4 w-4" />
+            {/* Слот 2: Користувачі */}
+            <div
+              className={`flex items-center justify-between gap-4 rounded-lg border p-3 ${bots.user ? "bg-zinc-50/50 dark:bg-zinc-900/30" : "border-dashed bg-transparent"}`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div
+                  className={`shrink-0 rounded-lg p-2 ${bots.user ? "bg-blue-500/10 text-blue-500" : "bg-muted text-muted-foreground"}`}
+                >
+                  <UserCheck className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Для користувачів
+                  </p>
+                  <p className="mt-0.5 truncate text-sm font-semibold">
+                    {bots.user ? `@${bots.user.username}` : "Не підключено"}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground font-medium">Для користувачів</p>
-                <p className="text-sm font-semibold truncate mt-0.5">
-                  {bots.user ? `@${bots.user.username}` : "Не підключено"}
-                </p>
-              </div>
+              {bots.user && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete("user")}
+                  type="button"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-            {bots.user && (
-              <Button 
-                variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive shrink-0"
-                onClick={() => handleDelete("user")} type="button"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
           </div>
-
         </div>
       </div>
-    </div>
-      
+
       {/* Хедер та Загальний опис */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <Terminal className="h-6 w-6 text-primary" /> Інтеграція по API
         </h1>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
           {initialApiData.description}
         </p>
-      </div>
+      </div> */}
 
       {/* Метадані (Дати створення/смерті) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg border">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <div className="text-xs">
@@ -294,10 +335,10 @@ TypeScript
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Керування Токеном */}
-      <Card className="border-primary/20 bg-primary/[0.01]">
+      {/* <Card className="border-primary/20 bg-primary/[0.01]">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Key className="h-4 w-4 text-primary" /> Ключ доступу (API Token)
@@ -333,11 +374,11 @@ TypeScript
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Можливості та Обмеження */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Можливості */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 uppercase text-emerald-600 dark:text-emerald-400">
@@ -356,7 +397,6 @@ TypeScript
           </CardContent>
         </Card>
 
-        {/* Обмеження */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 uppercase text-amber-600 dark:text-amber-400">
@@ -374,10 +414,10 @@ TypeScript
             </ul>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Інструкція та Приклади коду */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-blue-500" /> Інструкція з підключення та приклади
@@ -390,7 +430,7 @@ TypeScript
             <p><strong>Крок 3:</strong> Направляйте POST-запит на створення сутності з валідною структурою тіла запиту.</p>
           </div>
 
-          {/* Таби вибору коду */}
+       
           <div className="space-y-2">
             <div className="flex border-b text-sm">
               <button 
@@ -407,7 +447,7 @@ TypeScript
               </button>
             </div>
 
-            {/* Контент табів */}
+    
             <div className="bg-zinc-950 text-zinc-100 rounded-lg p-4 font-mono text-xs overflow-x-auto relative group">
               {activeTab === "curl" ? (
                 <pre>{`curl -X POST https://lynxai-crm.com/api/v1/leads \\
@@ -444,8 +484,7 @@ TypeScript
             </div>
           </div>
         </CardContent>
-      </Card>
-
+      </Card> */}
     </div>
   )
 }

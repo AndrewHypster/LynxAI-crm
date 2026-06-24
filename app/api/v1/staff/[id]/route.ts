@@ -1,15 +1,17 @@
+import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
-import { getValidApiToken } from "@/lib/token"
-import { getServerSession } from "next-auth"
-import { LEAD_ALLOWED_PATCH_FIELDS } from "@/lib/constants"
 
 type RouteParams = {
   params: Promise<{ id: string }>
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
+  const session = await getToken({ req })
+  if (!session)
+    return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  const token = session.apiToken
+  
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
-
   const { id } = await params
 
   if (!id) {
@@ -19,8 +21,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const targetUrl = `${EXTERNAL_API_URL}/staff/${id}`
 
   try {
-    const token = await getValidApiToken()
-
     const res = await fetch(targetUrl, {
       method: "GET",
       headers: {
@@ -46,4 +46,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     )
   }
 }
-

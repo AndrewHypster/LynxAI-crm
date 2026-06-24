@@ -6,6 +6,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AllProviders } from "@/components/providers"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -43,6 +44,7 @@ export default function RootLayout({
               <ThemeToggle />
             </header>
             <div className="flex-1 overflow-auto p-6">{children}</div>
+            <Toaster richColors />
           </main>
         </AllProviders>
       </body>

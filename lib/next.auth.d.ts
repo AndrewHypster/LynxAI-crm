@@ -15,6 +15,7 @@ declare module "next-auth" {
 
   interface User {
     id: string
+    name:string
     role: string
     companyId: string | null
     apiToken: string // 👈 Обов'язково тут, щоб authorize не сварився

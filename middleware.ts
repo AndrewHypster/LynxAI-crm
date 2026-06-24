@@ -29,6 +29,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|humans.txt).*)",
+    // Додай сюди /api/v1/login
+    "/((?!api/auth|api/v1/login|_next/static|_next/image|favicon.ico|humans.txt).*)",
   ],
 }

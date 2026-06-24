@@ -1,22 +1,24 @@
+import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
-import { useSession } from "next-auth/react"
-import { getValidApiToken } from "@/lib/token"
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
-  const { searchParams } = new URL(request.url)
+  const { searchParams } = new URL(req.url)
   const queryString = searchParams.toString()
 
   const targetUrl = queryString
     ? `${EXTERNAL_API_URL}/leads?${queryString}`
     : `${EXTERNAL_API_URL}/leads`
 
-    const token = await getValidApiToken()
+  const session = await getToken({ req })
+  if (!session)
+    return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  const token = session.apiToken
 
-    try {
-      const res = await fetch(targetUrl, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+  try {
+    const res = await fetch(targetUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
 
     if (!res.ok)
       return NextResponse.json({ error: "API Error" }, { status: res.status })
@@ -26,8 +28,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
-
-
 
 interface LeadRequestBody {
   first_name: string
@@ -57,9 +57,14 @@ interface LeadRequestBody {
   last_action_at?: string
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
+  const session = await getToken({ req })
+  if (!session)
+    return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  const token = session.apiToken
+
   try {
-    const body: LeadRequestBody = await request.json()
+    const body: LeadRequestBody = await req.json()
 
     // 1. Валідація
     if (!body.first_name || !body.last_name || !body.phone || !body.title) {
@@ -100,15 +105,15 @@ export async function POST(request: Request) {
 
     // 3. ЗАПИТ НА ГОЛОВНИЙ СЕРВЕР
     // Заміни URL на адресу свого головного сервера (краще винести в .env як BACKEND_URL)
- 
+
     const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
-    
+
     const response = await fetch(`${EXTERNAL_API_URL}/leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "accept": "application/json",
-        "Authorization": `Bearer ${await getValidApiToken()}`
+        accept: "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     })
@@ -117,11 +122,11 @@ export async function POST(request: Request) {
     if (!response.ok) {
       const errorResponse = await response.json().catch(() => ({}))
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: errorResponse.message || "Головний сервер повернув помилку",
-          errors: errorResponse.errors || null
-        }, 
+          errors: errorResponse.errors || null,
+        },
         { status: response.status }
       )
     }
@@ -130,18 +135,17 @@ export async function POST(request: Request) {
     const serverData = await response.json()
 
     return NextResponse.json(
-      { 
-        success: true, 
-        message: "Лід успішно створений на головному сервері", 
-        data: serverData 
-      }, 
+      {
+        success: true,
+        message: "Лід успішно створений на головному сервері",
+        data: serverData,
+      },
       { status: 201 }
     )
-
   } catch (error) {
     console.error("API_LEADS_POST_ERROR:", error)
     return NextResponse.json(
-      { success: false, message: "Не вдалося зв'язатися з головним сервером" }, 
+      { success: false, message: "Не вдалося зв'язатися з головним сервером" },
       { status: 500 }
     )
   }

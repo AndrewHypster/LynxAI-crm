@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getValidApiToken } from "@/lib/token"
-import { getServerSession } from "next-auth"
 import { LEAD_ALLOWED_PATCH_FIELDS } from "@/lib/constants"
+import { getToken } from "next-auth/jwt"
 
 type RouteParams = {
   params: Promise<{ lead_id: string }>
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
-
+export async function GET(req: NextRequest, { params }: RouteParams) {
+  const session = await getToken({req});
+  if (!session) return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  
   const { lead_id } = await params
+  if (!lead_id) return NextResponse.json({ error: "Missing lead ID" }, { status: 400 })
 
-  if (!lead_id) {
-    return NextResponse.json({ error: "Missing lead ID" }, { status: 400 })
-  }
-
-  const targetUrl = `${EXTERNAL_API_URL}/leads/${lead_id}`
+  const targetUrl = `${process.env.EXTERNAL_API_URL}/leads/${lead_id}`
+  const token = session.apiToken
 
   try {
-    const token = await getValidApiToken()
-
     const res = await fetch(targetUrl, {
       method: "GET",
       headers: {
@@ -48,12 +44,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 // ЗМІНИТИ ЗНАЧЕННЯ ЛІДА ЗА ID
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
-  const session = await getServerSession()
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
+  const session = await getToken({req});
+  if (!session) return NextResponse.json({ error: "Session is empty" }, { status: 403 })
+  
   const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL
   const { lead_id } = await params
   if (!lead_id) {
@@ -61,7 +55,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const body = await request.json()
+    const body = await req.json()
     const filteredBody: Record<string, any> = {}
     let hasValidFields = false
 
@@ -115,7 +109,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Відправка на зовнішній бекенд
     const targetUrl = `${EXTERNAL_API_URL}/leads/${lead_id}`
-    const token = await getValidApiToken()
+    const token = session.apiToken
 
     const res = await fetch(targetUrl, {
       method: "PATCH",
