@@ -30,6 +30,6 @@ export default withAuth(
 export const config = {
   matcher: [
     // Додай сюди /api/v1/login
-    "/((?!api/auth|api/v1/login|_next/static|_next/image|favicon.ico|humans.txt).*)",
+    "/((?!api/auth|api/v1/login|forgot-password|_next/static|_next/image|favicon.ico|humans.txt).*)",
   ],
 }
