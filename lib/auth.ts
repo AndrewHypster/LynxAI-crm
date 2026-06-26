@@ -1,6 +1,8 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import jwt from "jsonwebtoken"
+import { Awaitable } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -68,7 +70,7 @@ export const authOptions: NextAuthOptions = {
       
       if (Date.now() > expiresAt) {
         // Токен закінчився. Закриваєм сесію, клієнта на авторизацію
-        return null;
+        return null as any;
       }
     
       return token;
