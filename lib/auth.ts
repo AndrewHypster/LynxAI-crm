@@ -67,8 +67,8 @@ export const authOptions: NextAuthOptions = {
       const expiresAt = token.apiTokenExpiresAt as number || 0;
       
       if (Date.now() > expiresAt) {
-        // Токен закінчився. Повертаємо помилку, щоб клієнт міг це обробити
-        return { ...token, error: "RefreshAccessTokenError" };
+        // Токен закінчився. Закриваєм сесію, клієнта на авторизацію
+        return null;
       }
     
       return token;
