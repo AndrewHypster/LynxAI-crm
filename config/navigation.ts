@@ -9,6 +9,9 @@ import {
   LucideLayers,
   Home,
   Webhook,
+  ListChecks,
+  Crown,
+  Gem,
 } from "lucide-react"
 
 export const NAV_CONFIG = [
@@ -77,6 +80,12 @@ export const NAV_CONFIG = [
         title: "API",
         url: "/api",
         icon: Webhook,
+        roles: ["admin", "creator"],
+      },
+      {
+        title: "Підписки",
+        url: "/subscriptions",
+        icon: Gem,
         roles: ["admin", "creator"],
       },
       {

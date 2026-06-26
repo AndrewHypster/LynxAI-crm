@@ -30,19 +30,18 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     try {
       // API запит: надсилаємо username, сервер шле код в ТГ
-      const res = await fetch(`${process.env.EXTERNAL_API_URL}/auth/password/request-change`, {
+      const res = await fetch(`/api/v1/auth/password/request-change`, {
         method: "POST",
         body: JSON.stringify({ username }),
       })
+      const data = await res.json()
       
-      
-      if (!res.ok) throw new Error("Не вдалося надіслати код")
+      if (!res.ok) throw new Error(data.message)
      
-      
       toast.success("Код надіслано в Telegram")
       setTimer(30)
-    } catch (e) {
-      toast.error("Помилка відправки коду")
+    } catch (e: any) {
+     toast.error(e.message)
     } finally {
       setIsLoading(false)
     }

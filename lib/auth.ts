@@ -1,8 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import jwt from "jsonwebtoken"
-import { Awaitable } from "next-auth";
-import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -29,7 +27,6 @@ export const authOptions: NextAuthOptions = {
             password: credentials.password 
           }),
         });
-      console.log(res);
       
         if (!res.ok) return null;
       
